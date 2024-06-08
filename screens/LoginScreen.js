@@ -49,6 +49,9 @@ const LoginScreen = () => {
           value={password}
           onChangeText={setPassword}
         />
+      <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+        <Text style={styles.forgotPassword}>Forgot Password ?</Text>
+      </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
@@ -66,7 +69,7 @@ const LoginScreen = () => {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => handlePress('https://linktr.ee/Shah2Range?fbclid=PAZXh0bgNhZW0CMTEAAaZhHwcDfLHrpSPyrTdeMiOBkjP_Uotaln123aGm4UN9_oZ7WS13lmrptXE_aem_AcTYse1PfldAtAWw3GcJnsUj2T0DlxfAnsTnauWgr5oZJOnIeiMzbG3lAwYrJxkb5c3NLRAoDkRo_qyggPbkRwa0')}>
-        <Image source={require('../assets/web.png')} style={styles.socialIcon} />
+        <Image source={require('../assets/web.png')} style={styles.web} />
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => handlePress('mailto:Contact@shah2range.com')}>
@@ -77,6 +80,7 @@ const LoginScreen = () => {
     </SafeAreaProvider>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -130,6 +134,18 @@ const styles = StyleSheet.create({
     height: 40,
     resizeMode: 'contain',
   },
+  web: {
+    width: 40,
+    height: 50,
+    resizeMode: 'contain',
+  },
+  forgotPassword: {
+    color: '#4B0082',
+    fontWeight: 'bold',
+    marginTop: 1,
+    marginRight: 225,
+    textDecorationLine: 'underline',
+  }
 });
 
 export default LoginScreen;
