@@ -49,7 +49,7 @@ const LoginScreen = () => {
           value={password}
           onChangeText={setPassword}
         />
-      <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+      <TouchableOpacity onPress={() => navigation.navigate('Verify')}>
         <Text style={styles.forgotPassword}>Forgot Password ?</Text>
       </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
@@ -143,7 +143,8 @@ const styles = StyleSheet.create({
     color: '#4B0082',
     fontWeight: 'bold',
     marginTop: 1,
-    marginRight: 225,
+    marginRight: 165,
+    width: 200,
     textDecorationLine: 'underline',
   }
 });
