@@ -13,17 +13,37 @@ const PasswordResetScreen = () => {
   const [newPasswordConfirmation, confirmNewPassword] = useState('');
   const navigation = useNavigation();
   
+  const validatePassword = ()=>{
+    if(newPasswordConfirmation.length < 8){
+      alert("password is too short");
+      return false;
+    };
+    let count = 0;
+    for (let i = 0; i < newPasswordConfirmation.length; i++) {
+      if(newPasswordConfirmation[i] > 47 || newPasswordConfirmation[i] < 58){
+        count += 1;
+      };
+    };
+    if(count < 3){
+      alert("your password should have at least 3 numbers");
+      return false;
+    }
+    return true;
+  }
+
   const handleReset = async() => {
     if(newPassword != newPasswordConfirmation){
       alert("passwords are not the same");
     }
     else{
       if(newPasswordConfirmation != user["userData"]["password"]){
-        const batch = writeBatch(db);
-        const userRef = doc(db, "users", user["userID"]);
-        batch.update(userRef, {"password": newPasswordConfirmation});
-        navigation.navigate('Login');
-        await batch.commit();
+        if(validatePassword() == true){
+          const batch = writeBatch(db);
+          const userRef = doc(db, "users", user["userID"]);
+          batch.update(userRef, {"password": newPasswordConfirmation});
+          navigation.navigate('Login');
+          await batch.commit();
+        }
       }
       else{
         alert("you cant put previous old password as new one");

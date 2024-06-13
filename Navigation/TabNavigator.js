@@ -5,19 +5,28 @@ import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import FormScreen from '../screens/FormScreen';
 import AdminHomeScreen from '../screens/AdminHomeScreen';
+import AdminAction from '../screens/AdminAction';
 import { useRoute } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
-  const route = useRoute();
-  const user = route.params;
+  const route2 = useRoute();
+  const user = route2.params;
 
   const AdminOrUser = () => {
     if (user["userData"]["user_type"] === 'admin') {
       return <AdminHomeScreen />;
     } else {
       return <HomeScreen />;
+    }
+  }
+
+  const AdminOrUserAction = () => {
+    if (user["userData"]["user_type"] === 'admin') {
+      return < AdminAction/>;
+    } else {
+      return <FormScreen />;
     }
   }
   return (
@@ -28,7 +37,7 @@ const TabNavigator = () => {
 
           if (route.name === 'Home') {
             iconName = 'home';
-          } else if (route.name === 'Form') {
+          } else if (route.name === 'Actions') {
             iconName = 'wpforms';
           } else if (route.name === 'Settings') {
             iconName = 'cog';
@@ -45,17 +54,13 @@ const TabNavigator = () => {
             null
           ]
       })}
-      // tabBarOptions={{
-      //   activeTintColor: 'tomato',
-      //   inactiveTintColor: 'gray',
-      // }}
     >
       <Tab.Screen 
       name="Home" 
       component={AdminOrUser}
       initialParams={ user }
       />
-      <Tab.Screen name="Form" component={FormScreen} />
+      <Tab.Screen name="Actions" component={AdminOrUserAction} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );

@@ -10,11 +10,6 @@ const VerifyUserScreen = () => {
     const [ID, setId] = useState('');
     const navigation = useNavigation();
   
-    // const validateEmail = (email) => {
-    //   const re = /\S+@\S+\.\S+/;
-    //   return re.test(email);
-    // };
-  
     const handleVerify= async() => {
       const users = await getDocs(collection(db, "users"));
       let user = undefined;

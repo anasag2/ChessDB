@@ -22,7 +22,7 @@ const LoginScreen = () => {
       };
     });
     if(user == undefined){
-      alert("Wrong Email or Password"); //edited by akira at 11:17am-13/06
+      alert("You entered wrong email or password");
     }
     else{
       const userData = user.data()
@@ -33,51 +33,22 @@ const LoginScreen = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        <View style={styles.logoContainer}>
+      {/* <View style={styles.logoContainer}>
           <Image source={require('../assets/logo.png')} style={styles.logo} />
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-      <TouchableOpacity onPress={() => navigation.navigate('Verify')}>
-        <Text style={styles.forgotPassword}>Forgot Password ?</Text>
-      </TouchableOpacity>
+        </View> */}
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Log In</Text>
+          <Text style={styles.buttonText}>Users</Text>
         </TouchableOpacity>
-        <View style={styles.socialIconsContainer}>
-        <TouchableOpacity onPress={() => handlePress('https://www.instagram.com/shah2range?igsh=MXY5Mm9saDB6dDUyeg==')}>
-        <Image source={require('../assets/image.png')} style={styles.socialIcon} />
-      </TouchableOpacity>
-      
-      <TouchableOpacity onPress={() => handlePress('https://www.facebook.com/Shah2Range/')}>
-        <Image source={require('../assets/f.png')} style={styles.socialIcon} />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => handlePress('whatsapp://send?phone=+972587130219')}>
-        <Image source={require('../assets/whatsapp.png')} style={styles.socialIcon} />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => handlePress('https://linktr.ee/Shah2Range?fbclid=PAZXh0bgNhZW0CMTEAAaZhHwcDfLHrpSPyrTdeMiOBkjP_Uotaln123aGm4UN9_oZ7WS13lmrptXE_aem_AcTYse1PfldAtAWw3GcJnsUj2T0DlxfAnsTnauWgr5oZJOnIeiMzbG3lAwYrJxkb5c3NLRAoDkRo_qyggPbkRwa0')}>
-        <Image source={require('../assets/web.png')} style={styles.web} />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => handlePress('mailto:Contact@shah2range.com')}>
-        <Image source={require('../assets/email.png')} style={styles.socialIcon} />
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Forms</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Students</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Tournament</Text>
+        </TouchableOpacity>
+    
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -98,7 +69,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 200,
-    height: 266,
+    height: 200,
     resizeMode: 'contain',
   },
   input: {
