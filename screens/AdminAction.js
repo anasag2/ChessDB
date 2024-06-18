@@ -13,21 +13,17 @@ const LoginScreen = () => {
     Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
   };
 
-  const handleLogin = async() => {
-    const users = await getDocs(collection(db, "users"));
-    let user = undefined;
-    users.forEach((doc) => {
-      if(email==doc.data()["email"] && password == doc.data()["password"]){
-        user = doc;
-      };
-    });
-    if(user == undefined){
-      alert("You entered wrong email or password");
-    }
-    else{
-      const userData = user.data()
-      navigation.navigate('HomePage', { userData });  
-    };
+  const handleUser = async() => {
+    navigation.navigate('FormGenerator');
+  };
+  const handleForms = async() => {
+    navigation.navigate('FormGenerator');
+  };
+  const handleStudent = async() => {
+    navigation.navigate('FormGenerator');
+  };
+  const handleTournament = async() => {
+    navigation.navigate('FormGenerator');
   };
 
   return (
@@ -36,16 +32,16 @@ const LoginScreen = () => {
       {/* <View style={styles.logoContainer}>
           <Image source={require('../assets/logo.png')} style={styles.logo} />
         </View> */}
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <TouchableOpacity style={styles.button} onPress={handleUser}>
           <Text style={styles.buttonText}>Users</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <TouchableOpacity style={styles.button} onPress={handleForms}>
           <Text style={styles.buttonText}>Forms</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <TouchableOpacity style={styles.button} onPress={handleStudent}>
           <Text style={styles.buttonText}>Students</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <TouchableOpacity style={styles.button} onPress={handleTournament}>
           <Text style={styles.buttonText}>Tournament</Text>
         </TouchableOpacity>
     
