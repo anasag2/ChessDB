@@ -7,13 +7,17 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const FormGenerator = () => {
   const [formName, setFormName] = useState('');
   const [fields, setFields] = useState([]);
   const [newFieldType, setNewFieldType] = useState('text');
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const [datePickerIndex, setDatePickerIndex] = useState(null);
 
   const addField = () => {
     setFields([...fields, { type: newFieldType, label: '', value: '' }]);
@@ -23,6 +27,18 @@ const FormGenerator = () => {
     const newFields = [...fields];
     newFields[index][key] = value;
     setFields(newFields);
+  };
+
+  const showDatePicker = (index) => {
+    setDatePickerIndex(index);
+    setDatePickerVisible(true);
+  };
+
+  const onDateChange = (event, selectedDate) => {
+    setDatePickerVisible(false);
+    if (selectedDate) {
+      handleFieldChange(datePickerIndex, 'value', selectedDate.toDateString());
+    }
   };
 
   const saveForm = () => {
@@ -82,26 +98,43 @@ const FormGenerator = () => {
             />
           )}
           {field.type === 'date' && (
-            <TextInput
-              style={styles.input}
-              placeholder="Enter date"
-              value={field.value}
-              onChangeText={(text) => handleFieldChange(index, 'value', text)}
-            />
+            <TouchableOpacity
+              style={styles.datePicker}
+              onPress={() => showDatePicker(index)}
+            >
+              <Text style={styles.dateText}>
+                {field.value || 'Pick a date'}
+              </Text>
+            </TouchableOpacity>
           )}
         </View>
       ))}
-      <Picker
-        selectedValue={newFieldType}
-        style={styles.picker}
-        onValueChange={(itemValue) => setNewFieldType(itemValue)}
-      >
-        <Picker.Item label="Text" value="text" />
-        <Picker.Item label="Number" value="number" />
-        <Picker.Item label="Date" value="date" />
-      </Picker>
-      <Button title="Add Field" onPress={addField} />
-      <Button title="Save Form" onPress={saveForm} />
+      <View style={styles.fieldControls}>
+        <Text style={styles.label}>Add New Field:</Text>
+        <Picker
+          selectedValue={newFieldType}
+          style={styles.picker}
+          onValueChange={(itemValue) => setNewFieldType(itemValue)}
+        >
+          <Picker.Item label="Text" value="text" />
+          <Picker.Item label="Number" value="number" />
+          <Picker.Item label="Date" value="date" />
+        </Picker>
+        <TouchableOpacity style={styles.addButton} onPress={addField}>
+          <Text style={styles.addButtonText}>Add Field</Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity style={styles.saveButton} onPress={saveForm}>
+        <Text style={styles.saveButtonText}>Save Form</Text>
+      </TouchableOpacity>
+      {datePickerVisible && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          display="default"
+          onChange={onDateChange}
+        />
+      )}
     </ScrollView>
   );
 };
@@ -112,19 +145,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    color: '#333',
     marginBottom: 20,
   },
   input: {
     width: '100%',
-    padding: 10,
+    padding: 12,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
+    backgroundColor: '#fff',
     marginBottom: 10,
   },
   picker: {
@@ -135,6 +170,64 @@ const styles = StyleSheet.create({
   fieldContainer: {
     width: '100%',
     marginBottom: 20,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+  },
+  fieldControls: {
+    width: '100%',
+    marginBottom: 20,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#555',
+    marginBottom: 10,
+  },
+  addButton: {
+    marginTop: 10,
+    padding: 12,
+    backgroundColor: '#4CAF50',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  saveButton: {
+    width: '100%',
+    padding: 15,
+    backgroundColor: '#2196F3',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  datePicker: {
+    width: '100%',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#555',
   },
 });
 
