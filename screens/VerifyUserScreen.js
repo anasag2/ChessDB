@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import db from '../firebaseConfig.js';
 import { collection, getDocs } from "firebase/firestore";
+import BackButton from '../components/BackButton';
 
 const VerifyUserScreen = () => {
     const [email, setEmail] = useState('');
@@ -31,6 +32,7 @@ const VerifyUserScreen = () => {
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
+        <BackButton goBack={navigation.goBack} />
           <View style={styles.logoContainer}>
             <Image source={require('../assets/logo.png')} style={styles.logo} />
           </View>

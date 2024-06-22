@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, Button, TouchableOpacity } from 'react-n
 import { useRoute } from '@react-navigation/native'; 
 import db from '../firebaseConfig.js';
 import { collection, getDocs } from "firebase/firestore";
+import BackButton from '../components/BackButton';
 
 const HomeScreen = () => {
   const route = useRoute();

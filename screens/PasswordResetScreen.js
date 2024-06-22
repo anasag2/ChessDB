@@ -5,6 +5,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import db from '../firebaseConfig.js';
 import { writeBatch, doc } from "firebase/firestore";
 import { useRoute } from '@react-navigation/native'; 
+import BackButton from '../components/BackButton';
 
 const PasswordResetScreen = () => {
   const route = useRoute();
@@ -54,6 +55,7 @@ const PasswordResetScreen = () => {
   return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
+        <BackButton goBack={navigation.goBack} />
           <View style={styles.logoContainer}>
             <Image source={require('../assets/logo.png')} style={styles.logo} />
           </View>
