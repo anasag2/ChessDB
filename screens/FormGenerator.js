@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useNavigation } from '@react-navigation/native';
+import BackButton from '../components/BackButton';
 
 const FormGenerator = () => {
   const [formName, setFormName] = useState('');
@@ -18,6 +20,7 @@ const FormGenerator = () => {
   const [newFieldType, setNewFieldType] = useState('text');
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [datePickerIndex, setDatePickerIndex] = useState(null);
+  const navigation = useNavigation();
 
   const addField = () => {
     setFields([...fields, { type: newFieldType, label: '', value: '' }]);
@@ -54,6 +57,7 @@ const FormGenerator = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <BackButton goBack={navigation.goBack} /> 
       <Text style={styles.title}>Form Generator</Text>
       <TextInput
         style={styles.input}

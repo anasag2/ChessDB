@@ -16,7 +16,7 @@ const HomeScreen = () => {
         style={styles.trainerPic}
       />
       <Text style={styles.trainerName}> {user["userData"]["name"]} is a teacher    </Text>
-      <Text style={styles.formDetails}>Form details: {"\n"}Status: Filled/Empty</Text>
+      
       <Button
         title="Fill the Form" 
         onPress={() => alert('Fill the Form Button Pressed')}
