@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from '../screens/LoginScreen';
 import VerifyUserScreen from '../screens/VerifyUserScreen';
 import PasswordResetScreen from '../screens/PasswordResetScreen';
+import FormGenerator from '../screens/FormGenerator';
 import TabNavigator from './TabNavigator';
 
 const Stack = createStackNavigator();
@@ -13,9 +14,10 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Home" component={TabNavigator} options={{ headerShown: false }} />
+        <Stack.Screen name="HomePage" component={TabNavigator} options={{ headerShown: false }} />
         <Stack.Screen name="Verify" component={VerifyUserScreen} options={{ headerShown: false }} />
         <Stack.Screen name="ResetPassword" component={PasswordResetScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="FormGenerator" component={FormGenerator} options={{ headerShown: false }} />
       </Stack.Navigator>
       
       

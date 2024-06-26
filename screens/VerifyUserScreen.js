@@ -2,33 +2,37 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image,Linking, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-
+import db from '../firebaseConfig.js';
+import { collection, getDocs } from "firebase/firestore";
+import BackButton from '../components/BackButton';
 
 const VerifyUserScreen = () => {
     const [email, setEmail] = useState('');
     const [ID, setId] = useState('');
     const navigation = useNavigation();
   
-    // const validateEmail = (email) => {
-    //   const re = /\S+@\S+\.\S+/;
-    //   return re.test(email);
-    // };
-  
-    const handleVerify= () => {
-      // if (!validateEmail(email)) {
-      //   Alert.alert('Invalid email format');
-      //   return;
-      // }
-      // if (ID.length < 8) {
-      //   Alert.alert('ID Not valid');
-      //   return;
-      // }
-      navigation.navigate('ResetPassword');
+    const handleVerify= async() => {
+      const users = await getDocs(collection(db, "users"));
+      let user = undefined;
+      users.forEach((doc) => {
+        if(email==doc.data()["email"] && ID == doc.id){
+          user = doc;
+        };
+      });
+      if(user == undefined){
+        alert("You have entered wrong email or ID");
+      }
+      else{
+        let userID = user.id
+        let userData = user.data()
+        navigation.navigate('ResetPassword', { userID, userData });  
+      };
     };
   
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
+        <BackButton goBack={navigation.goBack} />
           <View style={styles.logoContainer}>
             <Image source={require('../assets/logo.png')} style={styles.logo} />
           </View>

@@ -2,33 +2,60 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image,Linking, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-
+import db from '../firebaseConfig.js';
+import { writeBatch, doc } from "firebase/firestore";
+import { useRoute } from '@react-navigation/native'; 
+import BackButton from '../components/BackButton';
 
 const PasswordResetScreen = () => {
-    const [newPassword, setNewPassword] = useState('');
-    const [newPasswordConfirmation, confirmNewPassword] = useState('');
-    const navigation = useNavigation();
+  const route = useRoute();
+  const user = route.params;
+  const [newPassword, setNewPassword] = useState('');
+  const [newPasswordConfirmation, confirmNewPassword] = useState('');
+  const navigation = useNavigation();
   
-    const validateEmail = (email) => {
-      const re = /\S+@\S+\.\S+/;
-      return re.test(email);
+  const validatePassword = ()=>{
+    if(newPasswordConfirmation.length < 8){
+      alert("password is too short");
+      return false;
     };
-  
-    const handleReset = () => {
-    //   if (!validateEmail(email)) {
-    //     Alert.alert('Invalid email format');
-    //     return;
-    //   }
-    //   if (password.length < 6) {
-    //     Alert.alert('Password must be at least 6 characters long');
-    //     return;
-    //   }
-       navigation.navigate('Login');
+    let count = 0;
+    for (let i = 0; i < newPasswordConfirmation.length; i++) {
+      if(newPasswordConfirmation[i] > 47 || newPasswordConfirmation[i] < 58){
+        count += 1;
+      };
     };
+    if(count < 3){
+      alert("your password should have at least 3 numbers");
+      return false;
+    }
+    return true;
+  }
+
+  const handleReset = async() => {
+    if(newPassword != newPasswordConfirmation){
+      alert("passwords are not the same");
+    }
+    else{
+      if(newPasswordConfirmation != user["userData"]["password"]){
+        if(validatePassword() == true){
+          const batch = writeBatch(db);
+          const userRef = doc(db, "users", user["userID"]);
+          batch.update(userRef, {"password": newPasswordConfirmation});
+          navigation.navigate('Login');
+          await batch.commit();
+        }
+      }
+      else{
+        alert("you cant put previous old password as new one");
+      };
+    };
+  };
   
-    return (
+  return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
+        <BackButton goBack={navigation.goBack} />
           <View style={styles.logoContainer}>
             <Image source={require('../assets/logo.png')} style={styles.logo} />
           </View>

@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 const FormScreen = () => {
   return (
     <View style={styles.container}>
-      <Text>from Screen</Text>
+      <Text>form Screen</Text>
     </View>
   );
 }
