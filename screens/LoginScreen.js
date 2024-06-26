@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image,Linking, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import db from '../firebaseConfig.js';
+import { collection, getDocs } from "firebase/firestore";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -11,21 +13,21 @@ const LoginScreen = () => {
     Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
   };
 
-  const validateEmail = (email) => {
-    const re = /\S+@\S+\.\S+/;
-    return re.test(email);
-  };
-
-  const handleLogin = () => {
-    if (!validateEmail(email)) {
-      Alert.alert('Invalid email format');
-      return;
+  const handleLogin = async() => {
+    const users = await getDocs(collection(db, "users"));
+    let user = undefined;
+    users.forEach((doc) => {
+      if(email==doc.data()["email"] && password == doc.data()["password"]){
+        user = doc;
+      };
+    });
+    if(user == undefined){
+      alert("Wrong Email or Password"); //edited by akira at 11:17am-13/06
     }
-    if (password.length < 6) {
-      Alert.alert('Password must be at least 6 characters long');
-      return;
-    }
-    navigation.navigate('Home');
+    else{
+      const userData = user.data()
+      navigation.navigate('HomePage', { userData });  
+    };
   };
 
   return (
