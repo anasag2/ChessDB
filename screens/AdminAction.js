@@ -6,24 +6,28 @@ import db from '../firebaseConfig.js';
 import { collection, getDocs } from "firebase/firestore";
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
   const navigation = useNavigation();
-  const handlePress = (url) => {
-    Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
-  };
+  // const handlePress = (url) => {
+  //   Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
+  // };
 
   const handleUser = async() => {
-    navigation.navigate('FormGenerator');
+    actionType = "User";
+    navigation.navigate('CRUDPage', { actionType });
   };
   const handleForms = async() => {
-    navigation.navigate('FormGenerator');
+    actionType = "Form";
+    navigation.navigate('CRUDPage', { actionType });
   };
-  const handleStudent = async() => {
-    navigation.navigate('FormGenerator');
+  const handleGroup = async() => {
+    actionType = "Group";
+    navigation.navigate('CRUDPage', { actionType });
   };
   const handleTournament = async() => {
-    navigation.navigate('FormGenerator');
+    actionType = "Tournaments";
+    navigation.navigate('CRUDPage', { actionType });
   };
 
   return (
@@ -38,8 +42,8 @@ const LoginScreen = () => {
         <TouchableOpacity style={styles.button} onPress={handleForms}>
           <Text style={styles.buttonText}>Forms</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleStudent}>
-          <Text style={styles.buttonText}>Students</Text>
+        <TouchableOpacity style={styles.button} onPress={handleGroup}>
+          <Text style={styles.buttonText}>Groups</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleTournament}>
           <Text style={styles.buttonText}>Tournament</Text>

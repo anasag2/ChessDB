@@ -13,6 +13,8 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import BackButton from '../components/BackButton';
+import db from '../firebaseConfig.js';
+import { doc, setDoc, collection, getDocs, deleteDoc } from "firebase/firestore"; 
 
 const FormGenerator = () => {
   const [formName, setFormName] = useState('');
@@ -23,7 +25,7 @@ const FormGenerator = () => {
   const navigation = useNavigation();
 
   const addField = () => {
-    setFields([...fields, { type: newFieldType, label: '', value: '' }]);
+    setFields([...fields, { type: newFieldType, label: ''}]);
   };
 
   const handleFieldChange = (index, key, value) => {
@@ -32,10 +34,10 @@ const FormGenerator = () => {
     setFields(newFields);
   };
 
-  const showDatePicker = (index) => {
-    setDatePickerIndex(index);
-    setDatePickerVisible(true);
-  };
+  // const showDatePicker = (index) => {
+  //   setDatePickerIndex(index);
+  //   setDatePickerVisible(true);
+  // };
 
   const onDateChange = (event, selectedDate) => {
     setDatePickerVisible(false);
@@ -44,17 +46,62 @@ const FormGenerator = () => {
     }
   };
 
+  const saveToDB = async() =>{
+    let form = undefined;
+    const forms = await getDocs(collection(db, "forms"));
+    forms.forEach((doc) => {
+      if(formName==doc.id){
+        form = doc;
+      };
+    });
+    if (form == undefined){
+      formQuestions = {};
+      let empty = false;
+      fields.forEach((field)=>{
+        if(field["label"] == ""){
+          empty = true;
+        };
+      });
+      if(empty == true){
+        alert("you have an empty field");
+      }
+      else{
+        fields.forEach((field)=>{
+            formQuestions[field.label] = field.type;
+        });
+        await setDoc(doc(db, "forms", formName), {
+          questions: formQuestions
+        });
+        Alert.alert('Form Saved');
+        const newDocRef = doc(collection(db, formName));
+        await setDoc(newDocRef, {});
+        //const d = await getDocs(collection(db, formName));
+        //console.log(d);
+        //  d.forEach(async(x)=>{
+        // //   //console.log(x.id);
+        //   // deleteDoc(doc(db, formName, x.id));
+        //  });
+       // await deleteDoc(doc(db, formName, newDocRef));
+        setFormName('');
+        setFields([]);
+      }
+    }
+    else{
+      alert("this form already exist");
+    };
+  };
+
   const saveForm = () => {
     if (!formName.trim()) {
       Alert.alert('Form Name is required');
       return;
     }
 
-    Alert.alert('Form Saved', JSON.stringify({ name: formName, fields: fields }));
-    setFormName('');
-    setFields([]);
+    saveToDB();
+    // setFormName('');
+    // setFields([]);
   };
-
+// give the goback button some margin to the top 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <BackButton goBack={navigation.goBack} /> 
@@ -83,34 +130,10 @@ const FormGenerator = () => {
             <Picker.Item label="Text" value="text" />
             <Picker.Item label="Number" value="number" />
             <Picker.Item label="Date" value="date" />
+            <Picker.Item label="List" value="list" />
+            <Picker.Item label="Map" value="map" />
           </Picker>
-          {field.type === 'text' && (
-            <TextInput
-              style={styles.input}
-              placeholder="Enter text"
-              value={field.value}
-              onChangeText={(text) => handleFieldChange(index, 'value', text)}
-            />
-          )}
-          {field.type === 'number' && (
-            <TextInput
-              style={styles.input}
-              placeholder="Enter number"
-              keyboardType="numeric"
-              value={field.value}
-              onChangeText={(text) => handleFieldChange(index, 'value', text)}
-            />
-          )}
-          {field.type === 'date' && (
-            <TouchableOpacity
-              style={styles.datePicker}
-              onPress={() => showDatePicker(index)}
-            >
-              <Text style={styles.dateText}>
-                {field.value || 'Pick a date'}
-              </Text>
-            </TouchableOpacity>
-          )}
+          
         </View>
       ))}
       <View style={styles.fieldControls}>
@@ -123,6 +146,8 @@ const FormGenerator = () => {
           <Picker.Item label="Text" value="text" />
           <Picker.Item label="Number" value="number" />
           <Picker.Item label="Date" value="date" />
+          <Picker.Item label="List" value="list" />
+          <Picker.Item label="Map" value="map" />
         </Picker>
         <TouchableOpacity style={styles.addButton} onPress={addField}>
           <Text style={styles.addButtonText}>Add Field</Text>
