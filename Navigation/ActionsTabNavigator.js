@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import FormGenerator from '../screens/FormGenerator';
+import CreatUserScreen from '../screens/CreatUserScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { useRoute } from '@react-navigation/native';
 
@@ -15,7 +16,7 @@ const ActionsTabNavigator = () => {
     if (user["actionType"] === 'Form') {
       return <FormGenerator />;
     } else {// we need to change this
-      return <SettingsScreen />;
+      return <CreatUserScreen />;
     }
   }
 
