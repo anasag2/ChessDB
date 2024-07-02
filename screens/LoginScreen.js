@@ -22,6 +22,7 @@ const LoginScreen = () => {
       };
     });
     if(user == undefined){
+      setPassword("");
       alert("Wrong Email or Password"); //edited by akira at 11:17am-13/06
     }
     else{

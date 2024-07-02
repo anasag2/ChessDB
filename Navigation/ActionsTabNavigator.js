@@ -6,6 +6,7 @@ import CreatUserScreen from '../screens/CreatUserScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ReadUserScreen from '../screens/ReadUserScreen';
 import { useRoute } from '@react-navigation/native';
+import { Settings } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -13,9 +14,21 @@ const ActionsTabNavigator = () => {
   const route2 = useRoute();
   const user = route2.params;
 
-  const ActionType = () => {
+  const CreateActionType = () => {
     if (user["actionType"] === 'Form') {
       return <FormGenerator />;
+    } else if (user["actionType"] === 'User') {
+      return <CreatUserScreen />;
+    } else {// we need to change this
+      return <Settings />;
+    }
+  }
+
+  const ReadActionType = () => {
+    if (user["actionType"] === 'Form') {
+      return <FormGenerator />;
+    } else if (user["actionType"] === 'User') {
+      return <ReadUserScreen />;
     } else {// we need to change this
       return <CreatUserScreen />;
     }
@@ -51,9 +64,9 @@ const ActionsTabNavigator = () => {
     >
       <Tab.Screen 
       name="Create" 
-      component={ActionType}
+      component={CreateActionType}
       />
-      <Tab.Screen name="Read" component={ReadUserScreen} />
+      <Tab.Screen name="Read" component={ReadActionType} />
       <Tab.Screen name="Update" component={SettingsScreen} />
       <Tab.Screen name="Delete" component={SettingsScreen} />
     </Tab.Navigator>
