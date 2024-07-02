@@ -4,6 +4,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import FormGenerator from '../screens/FormGenerator';
 import CreatUserScreen from '../screens/CreatUserScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import ReadUserScreen from '../screens/ReadUserScreen';
 import { useRoute } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
@@ -52,7 +53,7 @@ const ActionsTabNavigator = () => {
       name="Create" 
       component={ActionType}
       />
-      <Tab.Screen name="Read" component={SettingsScreen} />
+      <Tab.Screen name="Read" component={ReadUserScreen} />
       <Tab.Screen name="Update" component={SettingsScreen} />
       <Tab.Screen name="Delete" component={SettingsScreen} />
     </Tab.Navigator>
