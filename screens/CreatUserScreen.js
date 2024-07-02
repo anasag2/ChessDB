@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, Button, StyleSheet } from 'react-native';
+import { ScrollView, View, TextInput, Text, Button, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import db from '../firebaseConfig.js';
+import { doc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
 
 const CreateUserScreen = () => {
   const initialFormData = {
@@ -8,7 +10,9 @@ const CreateUserScreen = () => {
     email: '',
     id: '',
     password: '',
-    role: 'admin',
+    phone_number: '',
+    gender: 'male',
+    role: 'teacher',
   };
 
   const initialEditingState = {
@@ -16,6 +20,8 @@ const CreateUserScreen = () => {
     email: true,
     id: true,
     password: true,
+    phone_number: true,
+    gender: true,
     role: true,
   };
 
@@ -34,28 +40,107 @@ const CreateUserScreen = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    console.log('User Data:', JSON.stringify(formData));
-    // Reset formData and isEditing states
-    setFormData(initialFormData);
-    setIsEditing(initialEditingState);
+  const checkData = () => {
+    for (let [_, value] of Object.entries(formData)) {
+      if (value === ""){
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const emailValidation = () => {
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+(@gmail\.com)$/;
+    return gmailRegex.test(formData["email"]);
+  };
+
+  const passwordValidation = () => {
+    p = formData["password"];
+    numCounter = 0;
+    if(p.length === 0 || p.length < 8){
+      return false;
+    }
+    for (let char of p) {
+      let charCode = char.charCodeAt(0);
+      if(charCode >= 48 && charCode <= 57){
+        numCounter += 1;
+      }
+    }
+    if(numCounter < 3){
+       return false;
+    }
+    return true;
+  };
+
+  const handleSave = async() => {
+    //console.log('User Data:', JSON.stringify(formData));
+    let not_exist = true;
+    const users = await getDocs(collection(db, 'users'));
+    users.forEach((doc) => {
+      if (formData["id"] == doc.id) {
+        console.log(doc.id);
+        console.log(formData["id"]);
+        not_exist = false;
+      }
+    });
+    if(not_exist === false){
+      alert("invalid id");
+    }else{
+      if(checkData() === false){
+        alert("you have some missing data for this user");
+      } else{ 
+        if (emailValidation() === false){
+          alert("unsupported email");
+        }else {
+          if(passwordValidation() === false){
+            alert("you have entered an invalid password\npassword should be made up of 3 numbers annd 5 letters at least");
+          }else{
+            await setDoc(doc(db, 'users', formData["id"]), {
+              name : formData["name"],
+              email : formData["email"],
+              password : formData["password"],
+              phone_number : formData["phone_number"],
+              gender : formData["gender"],
+              role : formData["role"],
+              groups : [],
+              forms_to_fill : {},
+            });
+            // Reset formData and isEditing states
+            setFormData(initialFormData);
+            setIsEditing(initialEditingState);
+          }
+        }
+      }
+    }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {Object.keys(formData).map((field) => (
         <View key={field} style={styles.fieldContainer}>
           {isEditing[field] ? (
-            field !== 'role' ? (
+            field !== 'role' && field !== "gender" && field !== "phone_number" ? (
               <TextInput
                 style={styles.input}
                 value={formData[field]}
                 onChangeText={(text) => handleChange(field, text)}
                 placeholder={`Enter ${field}`}
                 secureTextEntry={field === 'password'}
+                keyboardType={field === 'id' ? 'number-pad' : 'default'}
               />
             ) : (
-              <Picker
+              field === "phone_number" ? (
+                <TextInput
+                style={styles.input}
+                value={formData[field]}
+                onChangeText={(text) => handleChange(field, text)}
+                keyboardType='number-pad'
+                placeholder={`Enter phone number`}
+                secureTextEntry={field === 'password'}
+              />
+              ) : (
+              field === "role" ? (
+                <Picker
                 selectedValue={formData[field]}
                 style={styles.input}
                 onValueChange={(itemValue) => handleChange(field, itemValue)}
@@ -63,26 +148,33 @@ const CreateUserScreen = () => {
                 <Picker.Item label="Admin" value="admin" />
                 <Picker.Item label="Teacher" value="teacher" />
               </Picker>
+              ) :(
+              <Picker
+                selectedValue={formData[field]}
+                style={styles.input}
+                onValueChange={(itemValue) => handleChange(field, itemValue)}
+              >
+                <Picker.Item label="male" value="male" />
+                <Picker.Item label="female" value="female" />
+              </Picker>
+              ) 
             )
+          )
           ) : (
             <Text style={styles.label}>{formData[field]}</Text>
-          )}
-          {isEditing[field] ? (
-            <Button title="Confirm" onPress={() => handleConfirm(field)} />
-          ) : (
-            <Button title="Edit" onPress={() => handleEdit(field)} />
           )}
         </View>
       ))}
       <Button title="Save" onPress={handleSave} />
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
+    backgroundColor: '#f5f5f5',
   },
   fieldContainer: {
     marginBottom: 20,
