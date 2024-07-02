@@ -5,6 +5,7 @@ import FormGenerator from '../screens/FormGenerator';
 import CreatUserScreen from '../screens/CreatUserScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ReadUserScreen from '../screens/ReadUserScreen';
+import UpdateUserScreen from '../screens/UpdateUserScreen';
 import { useRoute } from '@react-navigation/native';
 import { Settings } from 'react-native';
 
@@ -67,7 +68,7 @@ const ActionsTabNavigator = () => {
       component={CreateActionType}
       />
       <Tab.Screen name="Read" component={ReadActionType} />
-      <Tab.Screen name="Update" component={SettingsScreen} />
+      <Tab.Screen name="Update" component={UpdateUserScreen} />
       <Tab.Screen name="Delete" component={SettingsScreen} />
     </Tab.Navigator>
   );
