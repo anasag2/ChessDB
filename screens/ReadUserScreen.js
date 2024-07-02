@@ -9,8 +9,8 @@ const ReadUserScreen = () => {
     { name: 'Emily Davis', email: 'emily@example.com', id: '4', password: 'password4', role: 'admin' },
     { name: 'David Wilson', email: 'david@example.com', id: '5', password: 'password5', role: 'teacher' },
     { name: 'محمد محسن', email: 'mie@example.com', id: '6', password: 'password6', role: 'teacher' },
-    { name: 'سمير حسكل', email: 'emly@example.com', id: '7', password: 'password7', role: 'admin' },
-    { name: 'برق جايتو ', email: 'daid@example.com', id: '8', password: 'password8', role: 'teacher' },
+    { name: 'سمير ', email: 'emly@example.com', id: '7', password: 'password7', role: 'admin' },
+    { name: 'برق', email: 'daid@example.com', id: '8', password: 'password8', role: 'teacher' },
   ];
 
   const [searchQuery, setSearchQuery] = useState('');
