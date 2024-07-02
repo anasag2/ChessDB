@@ -21,7 +21,7 @@ const ActionsTabNavigator = () => {
     } else if (user["actionType"] === 'User') {
       return <CreatUserScreen />;
     } else {// we need to change this
-      return <Settings />;
+      return <SettingsScreen />;
     }
   }
 
