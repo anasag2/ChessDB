@@ -35,6 +35,16 @@ const ActionsTabNavigator = () => {
     }
   }
 
+  const UpdateActionType = () => {
+    if (user["actionType"] === 'Form') {
+      return <FormGenerator />;
+    } else if (user["actionType"] === 'User') {
+      return <UpdateUserScreen />;
+    } else {// we need to change this
+      return <SettingsScreen />;
+    }
+  }
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -68,7 +78,7 @@ const ActionsTabNavigator = () => {
       component={CreateActionType}
       />
       <Tab.Screen name="Read" component={ReadActionType} />
-      <Tab.Screen name="Update" component={UpdateUserScreen} />
+      <Tab.Screen name="Update" component={UpdateActionType} />
       <Tab.Screen name="Delete" component={SettingsScreen} />
     </Tab.Navigator>
   );
