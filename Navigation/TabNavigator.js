@@ -6,6 +6,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import FormScreen from '../screens/FormScreen';
 import AdminHomeScreen from '../screens/AdminHomeScreen';
 import AdminAction from '../screens/AdminAction';
+import FormBuilderScreen from '../screens/FormBuilderScreen'
 import { useRoute } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
@@ -61,7 +62,7 @@ const TabNavigator = () => {
       initialParams={ user }
       />
       <Tab.Screen name="Actions" component={AdminOrUserAction} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Settings" component={FormBuilderScreen} />
     </Tab.Navigator>
   );
 }
