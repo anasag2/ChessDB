@@ -105,6 +105,7 @@ const CreateUserScreen = () => {
               groups : [],
               forms_to_fill : {},
             });
+            alert("User added successfully!");
             // Reset formData and isEditing states
             setFormData(initialFormData);
             setIsEditing(initialEditingState);
@@ -154,8 +155,8 @@ const CreateUserScreen = () => {
                 style={styles.input}
                 onValueChange={(itemValue) => handleChange(field, itemValue)}
               >
-                <Picker.Item label="male" value="male" />
-                <Picker.Item label="female" value="female" />
+                <Picker.Item label="Male" value="male" />
+                <Picker.Item label="Female" value="female" />
               </Picker>
               ) 
             )
