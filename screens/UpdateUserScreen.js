@@ -1,26 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import db from '../firebaseConfig.js';
+import { getDoc, writeBatch, doc, collection, getDocs } from 'firebase/firestore';
 
 const UpdateUserScreen = () => {
-  const initialUsers = [
-    { name: 'John Doe', email: 'john@example.com', id: '1', password: 'password1', role: 'admin' },
-    { name: 'Jane Smith', email: 'jane@example.com', id: '2', password: 'password2', role: 'teacher' },
-    { name: 'Mike Johnson', email: 'mike@example.com', id: '3', password: 'password3', role: 'teacher' },
-    { name: 'Emily Davis', email: 'emily@example.com', id: '4', password: 'password4', role: 'admin' },
-    { name: 'David Wilson', email: 'david@example.com', id: '5', password: 'password5', role: 'teacher' },
-    { name: 'محمد محسن', email: 'mie@example.com', id: '6', password: 'password6', role: 'teacher' },
-    { name: 'سمير ', email: 'emly@example.com', id: '7', password: 'password7', role: 'admin' },
-    { name: 'برق', email: 'daid@example.com', id: '8', password: 'password8', role: 'teacher' },
-  ];
-
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState(initialUsers);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      const u = await getDocs(collection(db, 'users'));
+      const userList = [];
+      u.forEach((doc) => {
+        let user_infos = {
+          id: doc.id,
+          name: doc.data().name,
+          place_of_residence: doc.data().place_of_residence,
+          role: doc.data().role,
+          gender: doc.data().gender,
+          email: doc.data().email,
+          password: doc.data().password,
+          phone_number: doc.data().phone_number,
+          groups: doc.data().groups,
+          forms_to_fill: doc.data().forms_to_fill,
+        };
+        userList.push(user_infos);
+      });
+      setUsers(userList);
+      setFilteredUsers(userList);
+    };
+
+    loadUsers();
+  }, []);
 
   const handleSearch = () => {
     const filtered = users.filter(user => user.name.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -45,16 +62,60 @@ const UpdateUserScreen = () => {
   const handleEdit = () => {
     setEditMode(true);
     setEditedUser({ ...selectedUser });
-    
+  };
+  
+  const emailValidation = () => {
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+(@gmail\.com)$/;
+    return gmailRegex.test(editedUser.email);
   };
 
-  const handleSave = () => {
-    setUsers(users.map(user => (user.id === editedUser.id ? editedUser : user)));
-    setFilteredUsers(filteredUsers.map(user => (user.id === editedUser.id ? editedUser : user)));
-    setSelectedUser(editedUser);
-    setEditMode(false);
-    setModalVisible(false); // Close modal after saving
-    console.log('User Data:', JSON.stringify(editedUser));
+  const passwordValidation = () => {
+    p = editedUser.password;
+    numCounter = 0;
+    if(p.length === 0 || p.length < 8){
+      return false;
+    }
+    for (let char of p) {
+      let charCode = char.charCodeAt(0);
+      if(charCode >= 48 && charCode <= 57){
+        numCounter += 1;
+      }
+    }
+    if(numCounter < 3){
+       return false;
+    }
+    return true;
+  };
+
+  const handleSave = async () => {
+    if(emailValidation() === false){
+      alert("unsupported email");
+    }else{
+      if(passwordValidation() === false){
+        alert("you have entered an invalid password\npassword should be made up of 3 numbers annd 5 letters at least");
+      }else{
+        const updatedUsers = users.map(user => (user.id === editedUser.id ? editedUser : user));
+        setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
+        setSelectedUser(editedUser);
+        const batch = writeBatch(db);
+        const userRef = doc(db, "users", editedUser.id);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+        for (let [key, value] of Object.entries(editedUser)) {
+          if(key !== 'id'){
+            if (value !== userData[key]){
+              //console.log([key]);
+              batch.update(userRef, {[key]: value});
+            }
+          }
+        };
+        setEditMode(false);
+        setModalVisible(false); // Close modal after saving
+        //console.log('User Data:', JSON.stringify(editedUser));
+        await batch.commit();
+      }
+    }
   };
 
   const handleInputChange = (field, value) => {
@@ -65,6 +126,7 @@ const UpdateUserScreen = () => {
     setSelectedUser(user);
     setEditedUser(user);
     setModalVisible(true);
+    setEditMode(false);
   };
 
   const renderUser = ({ item }) => (
@@ -109,6 +171,19 @@ const UpdateUserScreen = () => {
                   />
                   <TextInput
                     style={styles.input}
+                    value={editedUser.place_of_residence}
+                    onChangeText={(text) => handleInputChange('place_of_residence', text)}
+                    placeholder="place of residence"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    value={editedUser.phone_number}
+                    onChangeText={(text) => handleInputChange('phone_number', text)}
+                    placeholder="phone number"
+                    keyboardType='number-pad'
+                  />
+                  <TextInput
+                    style={styles.input}
                     value={editedUser.email}
                     onChangeText={(text) => handleInputChange('email', text)}
                     placeholder="Email"
@@ -134,14 +209,42 @@ const UpdateUserScreen = () => {
                 </>
               ) : (
                 <>
-                  <Text style={styles.label}>Name:</Text>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Name: </Text>
                   <Text style={styles.value}>{selectedUser.name}</Text>
-                  <Text style={styles.label}>Email:</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>gender: </Text>
+                  <Text style={styles.value}>{selectedUser.gender}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>place of residence: </Text>
+                  <Text style={styles.value}>{selectedUser.place_of_residence}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>phone number: </Text>
+                  <Text style={styles.value}>{selectedUser.phone_number}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Email: </Text>
                   <Text style={styles.value}>{selectedUser.email}</Text>
-                  <Text style={styles.label}>Password:</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Password: </Text>
                   <Text style={styles.value}>{selectedUser.password}</Text>
-                  <Text style={styles.label}>Role:</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Role: </Text>
                   <Text style={styles.value}>{selectedUser.role}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>number of groups: </Text>
+                  <Text style={styles.value}>{selectedUser.groups.length}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>number of unfilled forms: </Text>
+                  <Text style={styles.value}>{Object.keys(selectedUser.forms_to_fill).length}</Text>
+                </View>
                   <Button title="Edit" onPress={handleEdit} />
                 </>
               )
@@ -195,11 +298,9 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 10,
   },
   value: {
     fontSize: 16,
-    marginTop: 5,
   },
   pickerContainer: {
     borderWidth: 1,
@@ -210,6 +311,11 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: '100%',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center', 
+    marginTop: 10,
   },
 });
 
