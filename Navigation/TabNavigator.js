@@ -15,7 +15,7 @@ const TabNavigator = () => {
   const user = route2.params;
 
   const AdminOrUser = () => {
-    if (user["userData"]["user_type"] === 'admin') {
+    if (user["userData"]["role"] === 'admin') {
       return <AdminHomeScreen />;
     } else {
       return <HomeScreen />;
@@ -23,7 +23,7 @@ const TabNavigator = () => {
   }
 
   const AdminOrUserAction = () => {
-    if (user["userData"]["user_type"] === 'admin') {
+    if (user["userData"]["role"] === 'admin') {
       return < AdminAction/>;
     } else {
       return <FormScreen />;

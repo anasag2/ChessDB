@@ -17,6 +17,8 @@ const PasswordResetScreen = () => {
   const validatePassword = ()=>{
     if(newPasswordConfirmation.length < 8){
       alert("password is too short");
+      setNewPassword("");
+      confirmNewPassword("");
       return false;
     };
     let count = 0;
@@ -27,6 +29,8 @@ const PasswordResetScreen = () => {
     };
     if(count < 3){
       alert("your password should have at least 3 numbers");
+      setNewPassword("");
+      confirmNewPassword("");
       return false;
     }
     return true;
@@ -35,6 +39,8 @@ const PasswordResetScreen = () => {
   const handleReset = async() => {
     if(newPassword != newPasswordConfirmation){
       alert("passwords are not the same");
+      setNewPassword("");
+      confirmNewPassword("");
     }
     else{
       if(newPasswordConfirmation != user["userData"]["password"]){
@@ -48,6 +54,8 @@ const PasswordResetScreen = () => {
       }
       else{
         alert("you cant put previous old password as new one");
+        setNewPassword("");
+        confirmNewPassword("");
       };
     };
   };

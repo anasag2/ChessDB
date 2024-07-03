@@ -6,9 +6,10 @@ import { doc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore'
 
 const CreateUserScreen = () => {
   const initialFormData = {
-    name: '',
-    email: '',
     id: '',
+    name: '',
+    place_of_residence: '',
+    email: '',
     password: '',
     phone_number: '',
     gender: 'male',
@@ -16,9 +17,10 @@ const CreateUserScreen = () => {
   };
 
   const initialEditingState = {
-    name: true,
-    email: true,
     id: true,
+    name: true,
+    place_of_residence: true,
+    email: true,
     password: true,
     phone_number: true,
     gender: true,
@@ -104,6 +106,7 @@ const CreateUserScreen = () => {
               role : formData["role"],
               groups : [],
               forms_to_fill : {},
+              place_of_residence: formData["place_of_residence"],
             });
             alert("User added successfully!");
             // Reset formData and isEditing states
@@ -120,7 +123,7 @@ const CreateUserScreen = () => {
       {Object.keys(formData).map((field) => (
         <View key={field} style={styles.fieldContainer}>
           {isEditing[field] ? (
-            field !== 'role' && field !== "gender" && field !== "phone_number" ? (
+            field !== 'role' && field !== "gender" && field !== "phone_number" && field !== "place_of_residence" ? (
               <TextInput
                 style={styles.input}
                 value={formData[field]}
@@ -140,6 +143,15 @@ const CreateUserScreen = () => {
                 secureTextEntry={field === 'password'}
               />
               ) : (
+                field === "place_of_residence" ? (
+                  <TextInput
+                  style={styles.input}
+                  value={formData[field]}
+                  onChangeText={(text) => handleChange(field, text)}
+                  placeholder={`Enter place of residence`}
+                  secureTextEntry={field === 'password'}
+                />
+                ) : (
               field === "role" ? (
                 <Picker
                 selectedValue={formData[field]}
@@ -160,6 +172,7 @@ const CreateUserScreen = () => {
               </Picker>
               ) 
             )
+          )
           )
           ) : (
             <Text style={styles.label}>{formData[field]}</Text>
