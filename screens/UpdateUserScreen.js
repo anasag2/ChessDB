@@ -240,18 +240,27 @@ const UpdateUserScreen = () => {
                 <View style={styles.row}>
                   <Text style={styles.label}>number of groups: </Text>
                   <Text style={styles.value}>{selectedUser.groups.length}</Text>
+                  <View style={styles.Show}><Button title="Show" onPress={handleEdit} style={styles.show}/></View>
+                  {/* edit the style of show  */}
                 </View>
                 <View style={styles.row}>
                   <Text style={styles.label}>number of unfilled forms: </Text>
                   <Text style={styles.value}>{Object.keys(selectedUser.forms_to_fill).length}</Text>
+                  <View style={styles.Show}><Button title="Show" onPress={handleEdit} style={styles.show}/></View>
+                  
                 </View>
-                  <Button title="Edit" onPress={handleEdit} />
+                <View style={styles.Close}>
+                  <Button title="Edit" onPress={handleEdit} style={styles.Edit}/>
+                  </View>
+                  
                 </>
               )
             ) : (
               <Text>Loading...</Text>
             )}
-            <Button title="Close" onPress={() => setModalVisible(false)} />
+            <View style={styles.Close}>
+              <Button title="Close" onPress={() => setModalVisible(false)} />
+            </View>
           </View>
         </View>
       </Modal>
@@ -316,7 +325,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center', 
     marginTop: 10,
+    
   },
+  Close:{
+    marginTop: 10,
+  },
+  Edit:{
+    marginTop: 10,
+  },
+  Show:{
+    marginLeft: 10,
+  },
+  
 });
 
 export default UpdateUserScreen;

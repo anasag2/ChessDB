@@ -25,15 +25,15 @@ const ActionsTabNavigator = () => {
     }
   }
 
-  const ReadActionType = () => {
-    if (user["actionType"] === 'Form') {
-      return <FormGenerator />;
-    } else if (user["actionType"] === 'User') {
-      return <ReadUserScreen />;
-    } else {// we need to change this
-      return <CreatUserScreen />;
-    }
-  }
+  // const ReadActionType = () => {
+  //   if (user["actionType"] === 'Form') {
+  //     return <FormGenerator />;
+  //   } else if (user["actionType"] === 'User') {
+  //     return <ReadUserScreen />;
+  //   } else {// we need to change this
+  //     return <CreatUserScreen />;
+  //   }
+  // }
 
   const UpdateActionType = () => {
     if (user["actionType"] === 'Form') {
@@ -53,11 +53,7 @@ const ActionsTabNavigator = () => {
 
           if (route.name === 'Create') {
             iconName = 'home';// karmi needs to change them 
-          } else if (route.name === 'Read') {
-            iconName = 'wpforms';
-          } else if (route.name === 'Update') {
-            iconName = 'cog';
-          }else if (route.name === 'Delete') {
+          }  else if (route.name === 'Update') {
             iconName = 'cog';
           }
 
@@ -77,9 +73,8 @@ const ActionsTabNavigator = () => {
       name="Create" 
       component={CreateActionType}
       />
-      <Tab.Screen name="Read" component={ReadActionType} />
       <Tab.Screen name="Update" component={UpdateActionType} />
-      <Tab.Screen name="Delete" component={SettingsScreen} />
+      
     </Tab.Navigator>
   );
 }
