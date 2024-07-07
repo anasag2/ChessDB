@@ -6,24 +6,24 @@ import { Picker } from '@react-native-picker/picker';
 const formData = [
     {
       id: '1',
-      question: 'الاسم?',
+      question: 'الاسم؟',
       type: 'text',
     },
     {
       id: '2',
-      question: 'العمر?',
+      question: 'العمر؟',
       type: 'number',
     },
     {
       id: '3',
-      question: 'تاريخ جيتك على الدنيا?',
+      question: 'تاريخ الولادة؟',
       type: 'date',
     },
     {
       id: '4',
-      question: 'شو وظيفتك بالحياة',
+      question: 'شو وظيفتك بالحياة؟',
       type: 'list',
-      options: ['حمار', 'برق', 'جحش'],
+      options: ['مدرب', 'مسؤول', 'معلم'],
     },
   ];
   

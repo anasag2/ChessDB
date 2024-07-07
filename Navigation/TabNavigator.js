@@ -27,7 +27,7 @@ const TabNavigator = () => {
     if (user["userData"]["role"] === 'admin') {
       return < AdminAction/>;
     } else {
-      return <FormScreen />;
+      return <FormBuilderScreen />;
     }
   }
   return (
@@ -62,7 +62,7 @@ const TabNavigator = () => {
       initialParams={ user }
       />
       <Tab.Screen name="Actions" component={AdminOrUserAction} />
-      <Tab.Screen name="Settings" component={FormBuilderScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 }
