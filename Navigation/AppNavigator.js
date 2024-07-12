@@ -7,6 +7,7 @@ import PasswordResetScreen from '../screens/PasswordResetScreen';
 import FormGenerator from '../screens/FormGenerator';
 import TabNavigator from './TabNavigator';
 import ActionsTabNavigator from './ActionsTabNavigator'
+import FormBuilderScreen from '../screens/FormBuilderScreen';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Verify" component={VerifyUserScreen} options={{ headerShown: false }} />
         <Stack.Screen name="ResetPassword" component={PasswordResetScreen} options={{ headerShown: false }} />
         <Stack.Screen name="FormGenerator" component={FormGenerator} options={{ headerShown: false }} />
+        <Stack.Screen name="Form" component={FormBuilderScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
       
       

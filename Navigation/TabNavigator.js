@@ -27,7 +27,7 @@ const TabNavigator = () => {
     if (user["userData"]["role"] === 'admin') {
       return < AdminAction/>;
     } else {
-      return <FormBuilderScreen />;
+      return <FormScreen />;
     }
   }
   return (
