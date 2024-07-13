@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View,TouchableOpacity, Image, Button } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Button } from 'react-native';
 import { useRoute } from '@react-navigation/native'; 
 import db from '../firebaseConfig.js';
 import { collection, getDocs } from "firebase/firestore";
 import * as ImagePicker from 'expo-image-picker';
 
-const AdminHomeScreen = () => {
+const HomeScreen = () => {
   const route = useRoute();
   const user = route.params;
   const [selectedImage, setSelectedImage] = useState(null);
@@ -42,24 +42,18 @@ const AdminHomeScreen = () => {
     }
   };
 
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home Screen</Text>
-  
-      <Button title="Take a photo" onPress={takePhoto} />
-      <TouchableOpacity onPress={pickImage}>
-        {selectedImage ? (
-          <Image source={{ uri: selectedImage }} style={styles.image} />
-        ) : (
+      <View style={styles.card}>
+        <TouchableOpacity onPress={pickImage}>
           <Image
-          source={{ uri: 'https://via.placeholder.com/150' }} // Replace with actual image URL or local image
-          style={styles.trainerPic}
-        />
-        )}
-      </TouchableOpacity>
-  
-      <Text style={styles.trainerName}> {user["userData"]["name"]} is a Teacher </Text>
+            source={selectedImage ? { uri: selectedImage } : { uri: 'https://via.placeholder.com/150' }}
+            style={styles.trainerPic}
+          />
+        </TouchableOpacity>
+        <Text style={styles.trainerName}>{user.userData.name} is a Teacher</Text>
+      </View>
+      <Button title="Take a photo" onPress={takePhoto} />
     </View>
   );
 }
@@ -67,41 +61,34 @@ const AdminHomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: '#fff',
+    padding: 20,
   },
-  formName: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  card: {
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: '#f8f8f8',
+    borderRadius: 10,
+    padding: 20,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 5,
   },
   trainerPic: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-    borderRadius: 10,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    marginBottom: 10,
   },
   trainerName: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  formDetails: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  image: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
-    marginTop: 20,
   },
 });
 
-export default AdminHomeScreen;
+export default HomeScreen;

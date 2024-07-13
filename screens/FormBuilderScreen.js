@@ -2,35 +2,19 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, ScrollView, StyleSheet, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native'; 
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-const formData = [
-    {
-      id: '1',
-      question: 'الاسم؟',
-      type: 'text',
-    },
-    {
-      id: '2',
-      question: 'العمر؟',
-      type: 'number',
-    },
-    {
-      id: '3',
-      question: 'تاريخ الولادة؟',
-      type: 'date',
-    },
-    {
-      id: '4',
-      question: 'شو وظيفتك بالحياة؟',
-      type: 'list',
-      options: ['مدرب', 'مسؤول', 'معلم'],
-    },
-  ];
-  
 
-const FormBuilderScreen = () => {
+const FormScreen = () => {
+  const route = useRoute();
+  const { form, markAsCompleted } = route.params;
   const [formValues, setFormValues] = useState({});
   const [showDatePicker, setShowDatePicker] = useState(null);
+  const navigation = useNavigation();
+
+
 
   const handleInputChange = (id, value) => {
     setFormValues({ ...formValues, [id]: value });
@@ -42,19 +26,21 @@ const FormBuilderScreen = () => {
   };
 
   const handleSubmit = () => {
-    const responses = formData.map(question => ({
+    const responses = form.data.map(question => ({
       question: question.question,
       answer: formValues[question.id] || '',
     }));
     console.log('User Responses:', responses);
     Alert.alert('Form Submitted', JSON.stringify(responses, null, 2));
-    // Reset form values
-    setFormValues({});
+    markAsCompleted(form.name);
+    navigation.goBack();
   };
 
   return (
+    <SafeAreaProvider>
+    <SafeAreaView style={styles.container}>
     <ScrollView style={styles.container}>
-      {formData.map((question) => (
+      {form.data.map((question) => (
         <View key={question.id} style={styles.questionContainer}>
           <Text style={styles.questionText}>{question.question}</Text>
           {question.type === 'text' && (
@@ -103,6 +89,8 @@ const FormBuilderScreen = () => {
       ))}
       <Button title="Submit" onPress={handleSubmit} />
     </ScrollView>
+    </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
@@ -132,4 +120,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FormBuilderScreen;
+export default FormScreen;
