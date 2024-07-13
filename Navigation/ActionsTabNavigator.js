@@ -6,6 +6,7 @@ import CreatUserScreen from '../screens/CreatUserScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ReadUserScreen from '../screens/ReadUserScreen';
 import UpdateUserScreen from '../screens/UpdateUserScreen';
+import CreateGroupScreen from '../screens/CreateGroupsScreen';
 import { useRoute } from '@react-navigation/native';
 import { Settings } from 'react-native';
 
@@ -20,7 +21,10 @@ const ActionsTabNavigator = () => {
       return <FormGenerator />;
     } else if (user["actionType"] === 'User') {
       return <CreatUserScreen />;
-    } else {// we need to change this
+    }else if (user["actionType"] === 'Group') {
+      return <CreateGroupScreen />;
+    }
+     else {// we need to change this
       return <SettingsScreen />;
     }
   }
