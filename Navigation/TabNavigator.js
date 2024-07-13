@@ -17,19 +17,19 @@ const TabNavigator = () => {
 
   const AdminOrUser = () => {
     if (user["userData"]["role"] === 'admin') {
-      return <AdminHomeScreen />;
-    } else {
-      return <HomeScreen />;
-    }
-  }
-
-  const AdminOrUserAction = () => {
-    if (user["userData"]["role"] === 'admin') {
-      return < AdminAction/>;
+      return <AdminAction />;
     } else {
       return <FormScreen />;
     }
   }
+
+  // const AdminOrUserAction = () => {
+  //   if (user["userData"]["role"] === 'admin') {
+  //     return < AdminAction/>;
+  //   } else {
+  //     return <FormScreen />;
+  //   }
+  // }
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -37,8 +37,6 @@ const TabNavigator = () => {
           let iconName;
 
           if (route.name === 'Home') {
-            iconName = 'home';
-          } else if (route.name === 'Actions') {
             iconName = 'wpforms';
           } else if (route.name === 'Settings') {
             iconName = 'cog';
@@ -61,7 +59,7 @@ const TabNavigator = () => {
       component={AdminOrUser}
       initialParams={ user }
       />
-      <Tab.Screen name="Actions" component={AdminOrUserAction} />
+      {/* <Tab.Screen name="Forms" component={AdminOrUserAction} /> */}
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
