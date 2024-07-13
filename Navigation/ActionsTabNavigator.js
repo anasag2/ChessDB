@@ -9,6 +9,8 @@ import UpdateUserScreen from '../screens/UpdateUserScreen';
 import CreateGroupScreen from '../screens/CreateGroupsScreen';
 import { useRoute } from '@react-navigation/native';
 import { Settings } from 'react-native';
+import BackButton from '../components/BackButton';  // Adjust the path as needed
+
 
 const Tab = createBottomTabNavigator();
 
@@ -52,6 +54,7 @@ const ActionsTabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
@@ -74,10 +77,21 @@ const ActionsTabNavigator = () => {
       })}
     >
       <Tab.Screen 
-      name="Create" 
-      component={CreateActionType}
+        name="Create" 
+        component={CreateActionType}
+        options={({ navigation }) => ({
+          tabBarLabel: 'Create',
+          headerTitle: '',
+        })}
       />
-      <Tab.Screen name="Update" component={UpdateActionType} />
+      <Tab.Screen 
+        name="Update" 
+        component={UpdateActionType}
+        options={({ navigation }) => ({
+          tabBarLabel: 'Update',
+          headerTitle: '',
+        })}
+      />
       
     </Tab.Navigator>
   );

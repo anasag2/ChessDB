@@ -1,10 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
-import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import FormScreen from '../screens/FormScreen';
-import AdminHomeScreen from '../screens/AdminHomeScreen';
 import AdminAction from '../screens/AdminAction';
 import FormBuilderScreen from '../screens/FormBuilderScreen'
 import { useRoute } from '@react-navigation/native';
@@ -33,6 +31,7 @@ const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        headerShown: false,
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
@@ -58,9 +57,12 @@ const TabNavigator = () => {
       name="Home" 
       component={AdminOrUser}
       initialParams={ user }
+      options={{ tabBarLabel: 'Home',
+                  headerTitle: ''
+      }}
       />
       {/* <Tab.Screen name="Forms" component={AdminOrUserAction} /> */}
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      {/*<Tab.Screen name="Settings" component={SettingsScreen} />*/}
     </Tab.Navigator>
   );
 }

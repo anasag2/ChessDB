@@ -32,7 +32,6 @@ const VerifyUserScreen = () => {
     return (
       <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
-        <BackButton goBack={navigation.goBack} />
           <View style={styles.logoContainer}>
             <Image source={require('../assets/logo.png')} style={styles.logo} />
           </View>

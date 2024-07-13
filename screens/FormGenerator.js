@@ -118,7 +118,6 @@ const FormGenerator = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <BackButton goBack={navigation.goBack} />
       <Text style={styles.title}>Form Generator</Text>
       <TextInput
         style={styles.input}
