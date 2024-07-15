@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { TouchableOpacity, Image, StyleSheet, Platform, Modal, View, Text } from 'react-native';
+import { TouchableOpacity, Image, Modal, StyleSheet, View, Text } from 'react-native';
+//import BackButton from '../components/BackButton';
+// Screens and components
 import LoginScreen from '../screens/LoginScreen';
 import VerifyUserScreen from '../screens/VerifyUserScreen';
 import PasswordResetScreen from '../screens/PasswordResetScreen';
@@ -10,7 +11,7 @@ import FormGenerator from '../screens/FormGenerator';
 import TabNavigator from './TabNavigator';
 import ActionsTabNavigator from './ActionsTabNavigator';
 import FormBuilderScreen from '../screens/FormBuilderScreen';
-import CustomHeader from './CustomHeader';
+import CustomHeader from './CustomHeader'; // Your custom header component
 
 const Stack = createStackNavigator();
 
@@ -24,65 +25,26 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-      
         initialRouteName="Login"
         screenOptions={({ navigation }) => ({
-          headerStyle: {
-            height: 80, // Adjust based on your needs
-            backgroundColor: '#fff', // Optional: Set background color
-          },
-          headerRight: () => (
-            <TouchableOpacity onPress={toggleMenu} style={{ marginRight: 15 }}>
-              <Image
-                source={require('../assets/burger-bar.png')}  // Ensure the path is correct
-                style={{ width: 24, height: 24 }}
-              />
-            </TouchableOpacity>
-          )
+          headerStyle: { height: 80, backgroundColor: '#fff' },
+          headerTitle: ' ',
+          headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
+          // headerLeft: null,
         })}
       >
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="HomePage"
-          component={TabNavigator}
-          options={({ navigation }) => ({
-            headerRight: () => <CustomHeader navigation={navigation} />,
-            headerTitle: ' ',
-            headerLeft: () => null,
-          })}
-        />
-        <Stack.Screen name="CRUDPage" component={ActionsTabNavigator} options={{ headerShown: true,  headerTitle: '' }} />
-        <Stack.Screen name="Verify" component={VerifyUserScreen} options={{ headerShown: true,  headerTitle: '' }} />
-        <Stack.Screen name="ResetPassword" component={PasswordResetScreen} options={{ headerShown: true,  headerTitle: ''}} />
-        <Stack.Screen name="FormGenerator" component={FormGenerator} options={{ headerShown: true,  headerTitle: ''}} />
-        <Stack.Screen name="Form" component={FormBuilderScreen} options={{ headerShown: true,  headerTitle: '' }} />
-        </Stack.Navigator>
-        <Modal
-        animationType="slide"
-        transparent={true}
-        visible={menuVisible}
-        onRequestClose={toggleMenu}
-        >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-          <TouchableOpacity style={styles.logoutButton} onPress={() => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
-              });
-              toggleMenu();
-            }}>
-            <Text style={styles.logoutButtonText}>Logout</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={toggleMenu}>
-              <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+        <Stack.Screen name="HomePage" component={TabNavigator}options={{ headerLeft:null }} />
+        <Stack.Screen name="CRUDPage" component={ActionsTabNavigator} />
+        <Stack.Screen name="Verify" component={VerifyUserScreen} />
+        <Stack.Screen name="ResetPassword" component={PasswordResetScreen} options={{ headerRight: ()=> null }}/>
+        <Stack.Screen name="FormGenerator" component={FormGenerator} />
+        <Stack.Screen name="Form" component={FormBuilderScreen} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };
+
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,

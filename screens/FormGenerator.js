@@ -14,7 +14,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
-import BackButton from '../components/BackButton';
+//import BackButton from '../components/BackButton';
 import db from '../firebaseConfig.js';
 import { doc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
 

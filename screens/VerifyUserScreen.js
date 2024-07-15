@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import db from '../firebaseConfig.js';
 import { collection, getDocs } from "firebase/firestore";
-import BackButton from '../components/BackButton';
+//import BackButton from '../components/BackButton';
 
 const VerifyUserScreen = () => {
     const [email, setEmail] = useState('');
