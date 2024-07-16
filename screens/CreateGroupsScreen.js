@@ -2,71 +2,122 @@ import React, { useState } from 'react';
 import { ScrollView, View, TextInput, Text, Button, StyleSheet } from 'react-native';
 import db from '../firebaseConfig.js';
 import { doc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { Picker } from '@react-native-picker/picker';
+import MultiSelect from 'react-native-multiple-select';
+import { FlatList } from 'react-native';
 
 const CreateGroupScreen = () => {
   const initialFormData = {
-    // school: '',
-    // teacher: '',
-    id: '',
-    name: '',
-    description: '',
+    class: '',
+    school: '',
+    coachName: '',
+    coachNumber: '',
   };
 
   const initialEditingState = {
+    class: true,
     school: true,
-    id: true,
-    name: true,
-    description: true,
+    coachName: true,
+    coachNumber: true,
   };
+
+  const [selectedTeachers, setSelectedTeachers] = useState([]);
+
+  //this constant is what needs to be pulled out of the etachers collection in the database
+  const teachers = [
+    { id: 1, name: 'Sami' },
+    { id: 2, name: 'Abdallah' },
+    { id: 3, name: 'Karmi' },
+    { id: 4, name: 'Ahmad' },
+    { id: 5, name: 'Anas' },
+  ];
 
   const [formData, setFormData] = useState(initialFormData);
   const [isEditing, setIsEditing] = useState(initialEditingState);
+  const fields = Object.keys(formData);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async() => {
-    let not_exist = true;
-    const groups = await getDocs(collection(db, 'groups'));
-    groups.forEach((doc) => {
-      if (formData["id"] == doc.id) {
-        not_exist = false;
-      }
-    });
-    if(not_exist === false){
-      alert("invalid id");
-    }else{
-      await setDoc(doc(db, 'groups', formData["id"]), {
-        name : formData["name"],
-        description : formData["description"],
-      });
-      alert("Group added successfully!");
-      // Reset formData and isEditing states
-      setFormData(initialFormData);
-      setIsEditing(initialEditingState);
+  const handleSave = async () => {
+  // Check if group already exists in the database
+  let groupExists = false;
+  const groupsSnapshot = await getDocs(collection(db, 'groups'));
+  groupsSnapshot.forEach((doc) => {
+    if (formData.id === doc.id) {
+      groupExists = true;
     }
-  };
+  });
+
+  if (groupExists) {
+    alert("A group with this ID already exists.");
+  } else {
+    const groupData = {
+      ...formData,
+      teachers: selectedTeachers,
+    };
+
+    // Save to Firebase
+    await setDoc(doc(db, 'groups', formData.id), groupData);
+    alert("Group added successfully!");
+
+    // Reset formData and isEditing states
+    setFormData(initialFormData);
+    setIsEditing(initialEditingState);
+    setSelectedTeachers([]);
+  }
+};
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {Object.keys(formData).map((field) => (
-        <View key={field} style={styles.fieldContainer}>
-          {isEditing[field] ? (
+    <View style={styles.container}>
+    <FlatList
+      data={fields}
+      keyExtractor={(item) => item}
+      renderItem={({ item: field }) => (
+        <View style={styles.fieldContainer}>
+          {field === 'school' ? (
+            <Picker
+              selectedValue={formData.school}
+              onValueChange={(itemValue) =>
+                setFormData({ ...formData, school: itemValue })
+              }>
+              <Picker.Item label="School 1" value="school1" />
+              <Picker.Item label="School 2" value="school2" />
+              {/* Add more schools as needed */}
+            </Picker>
+          ) : (
             <TextInput
               style={styles.input}
               value={formData[field]}
               onChangeText={(text) => handleChange(field, text)}
               placeholder={`Enter ${field}`}
-              keyboardType={field === 'id' ? 'number-pad' : 'default'}
+              keyboardType={field === 'coachNumber' ? 'number-pad' : 'default'}
             />
-          ) : (
-            <Text style={styles.label}>{formData[field]}</Text>
           )}
         </View>
-      ))}
-      <Button title="Save" onPress={handleSave} />
-    </ScrollView>
+      )}
+    />
+    <MultiSelect
+      items={teachers}
+      uniqueKey="id"
+      onSelectedItemsChange={setSelectedTeachers}
+      selectedItems={selectedTeachers}
+      selectText="Pick Teachers"
+      searchInputPlaceholderText="Search Teachers..."
+      tagRemoveIconColor="#CCC"
+      tagBorderColor="#CCC"
+      tagTextColor="#CCC"
+      selectedItemTextColor="#CCC"
+      selectedItemIconColor="#CCC"
+      itemTextColor="#000"
+      displayKey="name"
+      searchInputStyle={{ color: '#CCC' }}
+      submitButtonColor="#CCC"
+      submitButtonText="Submit"
+    />
+    <Button title="Save" onPress={handleSave} />
+  </View>
   );
 };
 
