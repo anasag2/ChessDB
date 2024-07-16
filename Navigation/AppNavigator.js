@@ -11,7 +11,7 @@ import FormGenerator from '../screens/FormGenerator';
 import TabNavigator from './TabNavigator';
 import ActionsTabNavigator from './ActionsTabNavigator';
 import FormBuilderScreen from '../screens/FormBuilderScreen';
-import CustomHeader from './CustomHeader'; // Your custom header component
+import CustomHeader from '../components/BurgerMenu'; // Your custom header component
 
 const Stack = createStackNavigator();
 
@@ -26,20 +26,53 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Login"
-        screenOptions={({ navigation }) => ({
-          headerStyle: { height: 80, backgroundColor: '#fff' },
+        screenOptions={{
+          headerStyle: { height: 70, backgroundColor: '#fff' },
           headerTitle: ' ',
-          headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
-          // headerLeft: null,
-        })}
+        }}
       >
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="HomePage" component={TabNavigator}options={{ headerLeft:null }} />
-        <Stack.Screen name="CRUDPage" component={ActionsTabNavigator} />
-        <Stack.Screen name="Verify" component={VerifyUserScreen} />
-        <Stack.Screen name="ResetPassword" component={PasswordResetScreen} options={{ headerRight: ()=> null }}/>
-        <Stack.Screen name="FormGenerator" component={FormGenerator} />
-        <Stack.Screen name="Form" component={FormBuilderScreen} />
+        <Stack.Screen 
+          name="HomePage"
+          component={TabNavigator}
+          options={({ navigation }) => ({
+            headerLeft:() => null,
+            headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
+          })}
+        />
+        <Stack.Screen 
+          name="CRUDPage"
+          component={ActionsTabNavigator}
+          options={({ navigation }) => ({
+            headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
+          })}
+        />
+        <Stack.Screen 
+          name="Verify"
+          component={VerifyUserScreen}
+          options={{ headerRight: () => null }}
+        />
+        <Stack.Screen 
+          name="ResetPassword"
+          component={PasswordResetScreen}
+          options={({ navigation }) => ({
+            headerRight: () => null,
+          })}
+        />
+        <Stack.Screen 
+          name="FormGenerator"
+          component={FormGenerator}
+          options={({ navigation }) => ({
+            headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
+          })}
+        />
+        <Stack.Screen 
+          name="Form"
+          component={FormBuilderScreen}
+          options={({ navigation }) => ({
+            headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
+          })}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

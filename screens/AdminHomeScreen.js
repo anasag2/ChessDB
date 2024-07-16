@@ -42,11 +42,9 @@ const AdminHomeScreen = () => {
     }
   };
 
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Home Screen</Text>
-  
       <Button title="Take a photo" onPress={takePhoto} />
       <TouchableOpacity onPress={pickImage}>
         {selectedImage ? (
@@ -58,12 +56,10 @@ const AdminHomeScreen = () => {
         />
         )}
       </TouchableOpacity>
-  
       <Text style={styles.trainerName}> {user["userData"]["name"]} is a Admin </Text>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

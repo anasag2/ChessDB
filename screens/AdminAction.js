@@ -63,8 +63,12 @@ const AdminActionScreen = () => {
     actionType = "Group";
     navigation.navigate('CRUDPage', { actionType });
   };
-  const handleTournament = async() => {
-    actionType = "Tournaments";
+  const handleStudents = async() => {
+    actionType = "Students";
+    navigation.navigate('CRUDPage', { actionType });
+  };
+  const handleLessons = async() => {
+    actionType = "Lessons";
     navigation.navigate('CRUDPage', { actionType });
   };
 
@@ -93,8 +97,11 @@ const AdminActionScreen = () => {
         <TouchableOpacity style={styles.button} onPress={handleGroup}>
           <Text style={styles.buttonText}>Groups</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleTournament}>
-          <Text style={styles.buttonText}>Tournament</Text>
+        <TouchableOpacity style={styles.button} onPress={handleStudents}>
+          <Text style={styles.buttonText}>Students</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleLessons}>
+          <Text style={styles.buttonText}>Lessons</Text>
         </TouchableOpacity>
     </View>
  
@@ -111,7 +118,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 20,
+    marginVertical: 12,
   },
   buttonText: {
     color: '#4B0082',
