@@ -1,47 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native'; 
 import * as ImagePicker from 'expo-image-picker';
 import db from '../firebaseConfig.js';
-import { collection, getDocs } from "firebase/firestore";
-
-const formDataSet = [
-  {
-    name: 'form1',
-    data: [
-      { id: '1', question: 'الاسم؟', type: 'text' },
-      { id: '2', question: 'العمر؟', type: 'number' },
-      { id: '3', question: 'تاريخ الولادة؟', type: 'date' },
-      { id: '4', question: 'شو وظيفتك بالحياة؟', type: 'list', options: ['مدرب', 'مسؤول', 'معلم'] },
-    ],
-  },
-  {
-    name: 'form2',
-    data: [
-      { id: '1', question: 'ما هو عنوانك؟', type: 'text' },
-      { id: '2', question: 'رقم هاتفك؟', type: 'number' },
-      { id: '3', question: 'موعد ميلادك؟', type: 'date' },
-      { id: '4', question: 'ما هو مجال عملك؟', type: 'list', options: ['طبيب', 'مهندس', 'معلم'] },
-    ],
-  },
-  {
-    name: 'form3',
-    data: [
-      { id: '1', question: 'اسم الشركة؟', type: 'text' },
-      { id: '2', question: 'عدد الموظفين؟', type: 'number' },
-      { id: '3', question: 'تاريخ التأسيس؟', type: 'date' },
-      { id: '4', question: 'ما هو مجال الشركة؟', type: 'list', options: ['تكنولوجيا', 'صناعة', 'تعليم'] },
-    ],
-  },
-];
+import { collection, getDocs, getDoc, doc } from "firebase/firestore";
 
 const FormListScreen =() => {
+  const [formDataSet, setForms] = useState([]);
   const [completedForms, setCompletedForms] = useState([]);
   const navigation = useNavigation();
   const route = useRoute();
   const user = route.params;
   const [selectedImage, setSelectedImage] = useState(null);
+
+
+  useEffect(() => {
+    const fetchForms = async () => {
+      //console.log(user.userData.forms_to_fill);
+      const formsMap = new Map(Object.entries(user.userData.forms_to_fill));
+      //console.log(formsMap);
+      const forms = [];
+      // let questions = {};
+      for (const [key, value] of formsMap.entries()) {
+        let count = 1;
+        let current_form = {name:"", data:[], group:"", userName:user.userData.name, formName:""};
+        //console.log(`Key: ${key}, Value: ${value}`);
+        current_form.name = `${key} for group ${value}`;
+        current_form.formName = key;
+        current_form.group = value;
+        const docRef = doc(db, "forms", key);
+        questions = (await getDoc(docRef)).data().questions;
+        const questions_map = new Map(Object.entries(questions));
+        //console.log(questions_map);
+        for (const [key2, value2] of questions_map.entries()) {
+          //console.log(`Key: ${key2}, Value: ${value2}`);
+          current_form.data[current_form.data.length] = {id:count, question:key2, type:value2};
+          count += 1;
+        };
+        //console.log(current_form.data);
+        forms.push(current_form);
+      }
+      //console.log(forms);
+      setForms(forms);
+    };
+    
+    fetchForms();
+  }, []);
+
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library

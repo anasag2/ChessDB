@@ -71,8 +71,8 @@ const FormGenerator = () => {
           questions: formQuestions,
         });
         Alert.alert('Form Saved');
-        const newDocRef = doc(collection(db, formName));
-        await setDoc(newDocRef, {});
+        // const newDocRef = doc(collection(db, formName));
+        // await setDoc(newDocRef, {});
         setFormName('');
         setFields([]);
       }
@@ -108,8 +108,7 @@ const FormGenerator = () => {
             <Picker.Item label="Text" value="text" />
             <Picker.Item label="Number" value="number" />
             <Picker.Item label="Date" value="date" />
-            <Picker.Item label="List" value="list" />
-            <Picker.Item label="Map" value="map" />
+            <Picker.Item label="students list" value="students" />
           </Picker>
         </View>
       </View>
@@ -152,8 +151,7 @@ const FormGenerator = () => {
                 <Picker.Item label="Text" value="text" />
                 <Picker.Item label="Number" value="number" />
                 <Picker.Item label="Date" value="date" />
-                <Picker.Item label="List" value="list" />
-                <Picker.Item label="Map" value="map" />
+                <Picker.Item label="students list" value="students" />
               </Picker>
             )}
           </View>
