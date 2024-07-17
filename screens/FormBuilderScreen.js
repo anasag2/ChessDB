@@ -5,7 +5,8 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native'; 
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-
+import db from '../firebaseConfig.js';
+import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 
 const FormScreen = () => {
   const route = useRoute();
@@ -13,7 +14,8 @@ const FormScreen = () => {
   const [formValues, setFormValues] = useState({});
   const [showDatePicker, setShowDatePicker] = useState(null);
   const navigation = useNavigation();
-
+  //console.log(form);
+  //console.log(markAsCompleted);
 
 
   const handleInputChange = (id, value) => {
@@ -25,13 +27,21 @@ const FormScreen = () => {
     handleInputChange(id, selectedDate.toISOString().split('T')[0]);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     const responses = form.data.map(question => ({
       question: question.question,
       answer: formValues[question.id] || '',
     }));
-    console.log('User Responses:', responses);
-    Alert.alert('Form Submitted', JSON.stringify(responses, null, 2));
+    //console.log('User Responses:', responses);
+    const newDocRef = doc(collection(db, form.formName));
+    let infos = {userName:form.userName, group_name:form.group};
+    responses.forEach(element => {
+      infos[element.question] = element.answer;
+      //console.log(infos);  
+    });
+    await setDoc(newDocRef, infos);
+    //console.log(forms.data());
+    Alert.alert('Form Submitted');
     markAsCompleted(form.name);
     navigation.goBack();
   };
@@ -74,15 +84,9 @@ const FormScreen = () => {
               )}
             </>
           )}
-          {question.type === 'list' && (
-            <Picker
-              selectedValue={formValues[question.id]}
-              onValueChange={(value) => handleInputChange(question.id, value)}
-              style={styles.picker}
-            >
-              {question.options.map((option, index) => (
-                <Picker.Item key={index} label={option} value={option} />
-              ))}
+          {question.type === 'students' && (
+            //to do by karmi
+            <Picker>
             </Picker>
           )}
         </View>
