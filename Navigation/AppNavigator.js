@@ -43,7 +43,7 @@ const AppNavigator = () => {
           name="Verify" 
           component={VerifyUserScreen} 
           options={({ navigation }) => ({
-            headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
+            headerRight: () => null ,
           })}
         />
         <Stack.Screen name="ResetPassword" component={PasswordResetScreen} options={{ headerRight: () => null }} />
