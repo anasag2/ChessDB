@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { TouchableOpacity, Image, Modal, StyleSheet, View, Text } from 'react-native';
-//import BackButton from '../components/BackButton';
-// Screens and components
+import { TouchableOpacity, Image, StyleSheet, View, Text, Modal } from 'react-native';
 import LoginScreen from '../screens/LoginScreen';
 import VerifyUserScreen from '../screens/VerifyUserScreen';
 import PasswordResetScreen from '../screens/PasswordResetScreen';
@@ -11,7 +9,7 @@ import FormGenerator from '../screens/FormGenerator';
 import TabNavigator from './TabNavigator';
 import ActionsTabNavigator from './ActionsTabNavigator';
 import FormBuilderScreen from '../screens/FormBuilderScreen';
-import CustomHeader from '../components/BurgerMenu'; // Your custom header component
+import CustomHeader from '../components/BurgerMenu';
 
 const Stack = createStackNavigator();
 
@@ -26,49 +24,39 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Login"
-        screenOptions={{
-          headerStyle: { height: 70, backgroundColor: '#fff' },
+        screenOptions={({ navigation }) => ({
+          headerStyle: { height: 80, backgroundColor: '#fff' },
           headerTitle: ' ',
-        }}
+          headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
+        })}
       >
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="HomePage" component={TabNavigator} options={{ headerLeft: null }} />
         <Stack.Screen 
-          name="HomePage"
-          component={TabNavigator}
-          options={({ navigation }) => ({
-            headerLeft:() => null,
-            headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
-          })}
-        />
-        <Stack.Screen 
-          name="CRUDPage"
-          component={ActionsTabNavigator}
+          name="CRUDPage" 
+          component={ActionsTabNavigator} 
           options={({ navigation }) => ({
             headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
           })}
         />
         <Stack.Screen 
-          name="Verify"
-          component={VerifyUserScreen}
-          options={{ headerRight: () => null }}
-        />
-        <Stack.Screen 
-          name="ResetPassword"
-          component={PasswordResetScreen}
+          name="Verify" 
+          component={VerifyUserScreen} 
           options={({ navigation }) => ({
-            headerRight: () => null,
+            headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
           })}
         />
+        <Stack.Screen name="ResetPassword" component={PasswordResetScreen} options={{ headerRight: () => null }} />
         <Stack.Screen 
-          name="FormGenerator"
-          component={FormGenerator}
+          name="FormGenerator" 
+          component={FormGenerator} 
           options={({ navigation }) => ({
             headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
           })}
         />
         <Stack.Screen 
-          name="Form"
-          component={FormBuilderScreen}
+          name="Form" 
+          component={FormBuilderScreen} 
           options={({ navigation }) => ({
             headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
           })}
