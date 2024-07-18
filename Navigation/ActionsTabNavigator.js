@@ -54,45 +54,40 @@ const ActionsTabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        
         tabBarIcon: ({ color, size }) => {
           let iconName;
-
-          if (route.name === 'Create') {
-            iconName = 'home';// karmi needs to change them 
-          }  else if (route.name === 'Update') {
-            iconName = 'cog';
+          switch (route.name) {
+            case 'Create':
+              iconName = 'plus-square';
+              break;
+            case 'Update':
+              iconName = 'edit';
+              break;
+            default:
+              iconName = 'circle';
+              break;
           }
-
           return <FontAwesome name={iconName} size={size} color={color} />;
         },
-          "tabBarActiveTintColor": "tomato",
-          "tabBarInactiveTintColor": "gray",
-          "tabBarStyle": [
-            {
-              "display": "flex"
-            },
-            null
-          ]
+        tabBarActiveTintColor: 'tomato',
+        tabBarInactiveTintColor: 'gray',
+        headerShown: false, // This hides the header
       })}
     >
-      <Tab.Screen 
-        name="Create" 
+      <Tab.Screen
+        name="Create"
         component={CreateActionType}
-        options={({ navigation }) => ({
+        options={{
           tabBarLabel: 'Create',
-          headerTitle: '',
-        })}
+        }}
       />
-      <Tab.Screen 
-        name="Update" 
+      <Tab.Screen
+        name="Update"
         component={UpdateActionType}
-        options={({ navigation }) => ({
+        options={{
           tabBarLabel: 'Update',
-          headerTitle: '',
-        })}
+        }}
       />
-      
     </Tab.Navigator>
   );
 }
