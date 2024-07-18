@@ -97,7 +97,7 @@ const AdminActionScreen = () => {
         <TouchableOpacity style={styles.button} onPress={handleGroup}>
           <Text style={styles.buttonText}>Groups</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleStudents}>
+        <TouchableOpacity style={styles.button} onPress={handleSchools}>
           <Text style={styles.buttonText}>Schools</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleLessons}>

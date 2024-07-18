@@ -2,15 +2,13 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import FormGenerator from '../screens/FormGenerator';
-import CreatUserScreen from '../screens/CreatUserScreen';
+import CreateUserScreen from '../screens/CreateUserScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import ReadUserScreen from '../screens/ReadUserScreen';
 import UpdateUserScreen from '../screens/UpdateUserScreen';
 import CreateGroupScreen from '../screens/CreateGroupsScreen';
+import LessonsScreen from '../screens/LessonsScreen';
+import UpdateLessonScreen from '../screens/UpdateLessonScreen';
 import { useRoute } from '@react-navigation/native';
-import { Settings } from 'react-native';
-//import BackButton from '../components/BackButton';  // Adjust the path as needed
-
 
 const Tab = createBottomTabNavigator();
 
@@ -22,31 +20,24 @@ const ActionsTabNavigator = () => {
     if (user["actionType"] === 'Form') {
       return <FormGenerator />;
     } else if (user["actionType"] === 'User') {
-      return <CreatUserScreen />;
-    }else if (user["actionType"] === 'Group') {
+      return <CreateUserScreen />;
+    } else if (user["actionType"] === 'Group') {
       return <CreateGroupScreen />;
-    }
-     else {// we need to change this
+    } else if (user["actionType"] === 'Lessons') {
+      return <LessonsScreen />;
+    } else {
       return <SettingsScreen />;
     }
   }
-
-  // const ReadActionType = () => {
-  //   if (user["actionType"] === 'Form') {
-  //     return <FormGenerator />;
-  //   } else if (user["actionType"] === 'User') {
-  //     return <ReadUserScreen />;
-  //   } else {// we need to change this
-  //     return <CreatUserScreen />;
-  //   }
-  // }
 
   const UpdateActionType = () => {
     if (user["actionType"] === 'Form') {
       return <FormGenerator />;
     } else if (user["actionType"] === 'User') {
       return <UpdateUserScreen />;
-    } else {// we need to change this
+    } else if (user["actionType"] === 'Lessons') {
+      return <UpdateLessonScreen />;
+    } else {
       return <SettingsScreen />;
     }
   }
@@ -54,45 +45,33 @@ const ActionsTabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
           if (route.name === 'Create') {
-            iconName = 'home';// karmi needs to change them 
-          }  else if (route.name === 'Update') {
+            iconName = 'home';
+          } else if (route.name === 'Update') {
             iconName = 'cog';
           }
 
           return <FontAwesome name={iconName} size={size} color={color} />;
         },
-          "tabBarActiveTintColor": "tomato",
-          "tabBarInactiveTintColor": "gray",
-          "tabBarStyle": [
-            {
-              "display": "flex"
-            },
-            null
-          ]
+        tabBarActiveTintColor: 'tomato',
+        tabBarInactiveTintColor: 'gray',
+        headerShown:false,
+        tabBarStyle: { display: 'flex' },
       })}
     >
       <Tab.Screen 
         name="Create" 
         component={CreateActionType}
-        options={({ navigation }) => ({
-          tabBarLabel: 'Create',
-          headerTitle: '',
-        })}
+        options={{ tabBarLabel: 'Create', headerTitle: '' }}
       />
       <Tab.Screen 
         name="Update" 
         component={UpdateActionType}
-        options={({ navigation }) => ({
-          tabBarLabel: 'Update',
-          headerTitle: '',
-        })}
+        options={{ tabBarLabel: 'Update', headerTitle: '' }}
       />
-      
     </Tab.Navigator>
   );
 }
