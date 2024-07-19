@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, TouchableOp
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UpdateLessonScreen = () => {
+  const [originalLessons, setOriginalLessons] = useState([]);
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [lessonName, setLessonName] = useState('');
@@ -20,6 +21,7 @@ const UpdateLessonScreen = () => {
     try {
       const jsonValue = await AsyncStorage.getItem('lessons');
       const loadedLessons = jsonValue != null ? JSON.parse(jsonValue) : [];
+      setOriginalLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
       setLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
     } catch (e) {
       console.error('Error loading lessons:', e);
@@ -37,7 +39,7 @@ const UpdateLessonScreen = () => {
   };
 
   const handleUpdateLesson = async () => {
-    const updatedLessons = lessons.map((lesson) =>
+    const updatedLessons = originalLessons.map((lesson) =>
       lesson.id === selectedLesson.id
         ? { ...lesson, name: lessonName, group: lessonGroup, teacher: lessonTeacher, form: lessonForm }
         : lesson
@@ -54,7 +56,7 @@ const UpdateLessonScreen = () => {
   };
 
   const handleDeleteLesson = async () => {
-    const filteredLessons = lessons.filter((lesson) => lesson.id !== selectedLesson.id);
+    const filteredLessons = originalLessons.filter((lesson) => lesson.id !== selectedLesson.id);
 
     try {
       await AsyncStorage.setItem('lessons', JSON.stringify(filteredLessons));
@@ -67,7 +69,7 @@ const UpdateLessonScreen = () => {
   };
 
   const handleSearch = () => {
-    const filtered = lessons.filter((lesson) =>
+    const filtered = originalLessons.filter((lesson) =>
       lesson.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setLessons(filtered.sort((a, b) => a.name.localeCompare(b.name)));
@@ -230,4 +232,3 @@ const styles = StyleSheet.create({
 });
 
 export default UpdateLessonScreen;
-
