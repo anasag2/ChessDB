@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Modal, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Picker } from '@react-native-picker/picker';
 
 const LessonsScreen = () => {
   const [lessonName, setLessonName] = useState('');
@@ -12,11 +11,31 @@ const LessonsScreen = () => {
   const [teachers, setTeachers] = useState([]);
   const [forms, setForms] = useState([]);
 
+  const [groupModalVisible, setGroupModalVisible] = useState(false);
+  const [teacherModalVisible, setTeacherModalVisible] = useState(false);
+  const [formModalVisible, setFormModalVisible] = useState(false);
+
+  const [filteredGroups, setFilteredGroups] = useState([]);
+  const [filteredTeachers, setFilteredTeachers] = useState([]);
+  const [filteredForms, setFilteredForms] = useState([]);
+
+  const [groupSearchQuery, setGroupSearchQuery] = useState('');
+  const [teacherSearchQuery, setTeacherSearchQuery] = useState('');
+  const [formSearchQuery, setFormSearchQuery] = useState('');
+
   useEffect(() => {
     // Load groups, teachers, and forms here
-    setGroups(['Group 1', 'Group 2', 'Group 3']);
-    setTeachers(['Teacher 1', 'Teacher 2', 'Teacher 3']);
-    setForms(['Form 1', 'Form 2', 'Form 3']);
+    const loadedGroups = ['Group 1', 'Group 2', 'Group 3', 'Group 4', 'Group 5'];
+    const loadedTeachers = ['Teacher 1', 'Teacher 2', 'Teacher 3', 'Teacher 4', 'Teacher 5'];
+    const loadedForms = ['Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5'];
+
+    setGroups(loadedGroups);
+    setTeachers(loadedTeachers);
+    setForms(loadedForms);
+
+    setFilteredGroups(loadedGroups);
+    setFilteredTeachers(loadedTeachers);
+    setFilteredForms(loadedForms);
   }, []);
 
   const saveLesson = async () => {
@@ -39,6 +58,45 @@ const LessonsScreen = () => {
     }
   };
 
+  const handleGroupSearch = (text) => {
+    setGroupSearchQuery(text);
+    const filtered = groups.filter(group => group.toLowerCase().includes(text.toLowerCase()));
+    setFilteredGroups(filtered);
+  };
+
+  const handleTeacherSearch = (text) => {
+    setTeacherSearchQuery(text);
+    const filtered = teachers.filter(teacher => teacher.toLowerCase().includes(text.toLowerCase()));
+    setFilteredTeachers(filtered);
+  };
+
+  const handleFormSearch = (text) => {
+    setFormSearchQuery(text);
+    const filtered = forms.filter(form => form.toLowerCase().includes(text.toLowerCase()));
+    setFilteredForms(filtered);
+  };
+
+  const highlightText = (text, highlight) => {
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return (
+      <Text>
+        {parts.map((part, index) =>
+          part.toLowerCase() === highlight.toLowerCase() ? (
+            <Text key={index} style={styles.highlight}>{part}</Text>
+          ) : (
+            part
+          )
+        )}
+      </Text>
+    );
+  };
+
+  const renderItem = ({ item, searchQuery, setSelectedItem, setModalVisible }) => (
+    <TouchableOpacity onPress={() => { setSelectedItem(item); setModalVisible(false); }}>
+      <Text style={styles.itemText}>{highlightText(item, searchQuery)}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create Lesson</Text>
@@ -48,36 +106,67 @@ const LessonsScreen = () => {
         value={lessonName}
         onChangeText={setLessonName}
       />
-      <Picker
-        selectedValue={lessonGroup}
-        onValueChange={(itemValue) => setLessonGroup(itemValue)}
-        style={styles.input}
-      >
-        <Picker.Item label="Select Group" value="" />
-        {groups.map((group, index) => (
-          <Picker.Item key={index} label={group} value={group} />
-        ))}
-      </Picker>
-      <Picker
-        selectedValue={lessonTeacher}
-        onValueChange={(itemValue) => setLessonTeacher(itemValue)}
-        style={styles.input}
-      >
-        <Picker.Item label="Select Teacher" value="" />
-        {teachers.map((teacher, index) => (
-          <Picker.Item key={index} label={teacher} value={teacher} />
-        ))}
-      </Picker>
-      <Picker
-        selectedValue={lessonForm}
-        onValueChange={(itemValue) => setLessonForm(itemValue)}
-        style={styles.input}
-      >
-        <Picker.Item label="Select Form" value="" />
-        {forms.map((form, index) => (
-          <Picker.Item key={index} label={form} value={form} />
-        ))}
-      </Picker>
+
+      {/* Group Picker */}
+      <TouchableOpacity style={styles.input} onPress={() => setGroupModalVisible(true)}>
+        <Text>{lessonGroup || 'Select Group'}</Text>
+      </TouchableOpacity>
+      <Modal visible={groupModalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TextInput style={styles.searchInput} placeholder="Search Group" onChangeText={handleGroupSearch} />
+            <FlatList
+              data={filteredGroups}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => renderItem({ item, searchQuery: groupSearchQuery, setSelectedItem: setLessonGroup, setModalVisible: setGroupModalVisible })}
+            />
+            <TouchableOpacity style={[styles.roundButton, styles.cancelButton]} onPress={() => setGroupModalVisible(false)}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Teacher Picker */}
+      <TouchableOpacity style={styles.input} onPress={() => setTeacherModalVisible(true)}>
+        <Text>{lessonTeacher || 'Select Teacher'}</Text>
+      </TouchableOpacity>
+      <Modal visible={teacherModalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TextInput style={styles.searchInput} placeholder="Search Teacher" onChangeText={handleTeacherSearch} />
+            <FlatList
+              data={filteredTeachers}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => renderItem({ item, searchQuery: teacherSearchQuery, setSelectedItem: setLessonTeacher, setModalVisible: setTeacherModalVisible })}
+            />
+            <TouchableOpacity style={[styles.roundButton, styles.cancelButton]} onPress={() => setTeacherModalVisible(false)}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Form Picker */}
+      <TouchableOpacity style={styles.input} onPress={() => setFormModalVisible(true)}>
+        <Text>{lessonForm || 'Select Form'}</Text>
+      </TouchableOpacity>
+      <Modal visible={formModalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TextInput style={styles.searchInput} placeholder="Search Form" onChangeText={handleFormSearch} />
+            <FlatList
+              data={filteredForms}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => renderItem({ item, searchQuery: formSearchQuery, setSelectedItem: setLessonForm, setModalVisible: setFormModalVisible })}
+            />
+            <TouchableOpacity style={[styles.roundButton, styles.cancelButton]} onPress={() => setFormModalVisible(false)}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <TouchableOpacity style={[styles.roundButton, styles.saveButton]} onPress={saveLesson}>
         <Text style={styles.buttonText}>Save Lesson</Text>
       </TouchableOpacity>
@@ -104,6 +193,37 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 20,
     marginBottom: 10,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 20,
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    marginBottom: 10,
+    width: '100%',
+  },
+  itemText: {
+    padding: 10,
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  highlight: {
+    backgroundColor: 'yellow',
   },
   roundButton: {
     borderRadius: 20,
@@ -112,7 +232,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   saveButton: {
-    backgroundColor: '#2196F3', // Blue color
+    backgroundColor: '#2196F3',
+  },
+  cancelButton: {
+    backgroundColor: '#777', // Gray color for cancel button
   },
   buttonText: {
     color: '#fff',
