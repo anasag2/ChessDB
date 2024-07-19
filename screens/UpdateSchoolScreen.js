@@ -91,7 +91,7 @@ const UpdateSchoolScreen = () => {
         renderItem={renderSchoolItem}
         style={styles.list}
       />
-      {selectedSchool ? (
+      {selectedSchool && (
         <>
           <TextInput
             style={styles.input}
@@ -115,8 +115,6 @@ const UpdateSchoolScreen = () => {
           <Button title="Update School" onPress={handleUpdateSchool} />
           <Button title="Delete School" onPress={handleDeleteSchool} color="red" />
         </>
-      ) : (
-        <Text>Please select a school to update or delete.</Text>
       )}
     </View>
   );
