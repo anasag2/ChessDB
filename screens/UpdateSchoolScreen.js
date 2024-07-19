@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UpdateSchoolScreen = () => {
   const [schools, setSchools] = useState([]);
+  const [filteredSchools, setFilteredSchools] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState(null);
   const [schoolName, setSchoolName] = useState('');
   const [supervisorName, setSupervisorName] = useState('');
@@ -20,9 +21,30 @@ const UpdateSchoolScreen = () => {
       const jsonValue = await AsyncStorage.getItem('schools');
       const loadedSchools = jsonValue != null ? JSON.parse(jsonValue) : [];
       setSchools(loadedSchools.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
+      setFilteredSchools(loadedSchools.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
     } catch (e) {
       console.error('Error loading schools:', e);
     }
+  };
+
+  const handleSearch = () => {
+    const filtered = schools.filter((school) => school.schoolName.toLowerCase().includes(searchQuery.toLowerCase()));
+    setFilteredSchools(filtered.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
+  };
+
+  const highlightText = (text, highlight) => {
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return (
+      <Text>
+        {parts.map((part, index) =>
+          part.toLowerCase() === highlight.toLowerCase() ? (
+            <Text key={index} style={styles.highlight}>{part}</Text>
+          ) : (
+            part
+          )
+        )}
+      </Text>
+    );
   };
 
   const handleSchoolSelect = (schoolId) => {
@@ -68,14 +90,11 @@ const UpdateSchoolScreen = () => {
     }
   };
 
-  const handleSearch = () => {
-    const filtered = schools.filter((school) => school.schoolName.toLowerCase().includes(searchQuery.toLowerCase()));
-    setSchools(filtered.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
-  };
-
-  const renderSchoolItem = ({ item }) => (
-    <TouchableOpacity onPress={() => handleSchoolSelect(item.id)} style={styles.schoolItem}>
-      <Text>{item.schoolName}</Text>
+  const renderSchool = ({ item }) => (
+    <TouchableOpacity onPress={() => handleSchoolSelect(item.id)}>
+      <View style={styles.schoolContainer}>
+        {highlightText(item.schoolName, searchQuery)}
+      </View>
     </TouchableOpacity>
   );
 
@@ -90,9 +109,9 @@ const UpdateSchoolScreen = () => {
       />
       <Button title="Search" onPress={handleSearch} />
       <FlatList
-        data={schools}
+        data={filteredSchools}
         keyExtractor={(item) => item.id}
-        renderItem={renderSchoolItem}
+        renderItem={renderSchool}
         style={styles.list}
       />
       <Modal
@@ -145,21 +164,23 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    width: '100%',
-    padding: 12,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 5,
     marginBottom: 10,
   },
   list: {
     marginBottom: 20,
   },
-  schoolItem: {
+  schoolContainer: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    marginBottom: 10,
+  },
+  highlight: {
+    backgroundColor: 'yellow',
   },
   modalContainer: {
     flex: 1,

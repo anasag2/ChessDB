@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UpdateLessonScreen = () => {
   const [lessons, setLessons] = useState([]);
+  const [filteredLessons, setFilteredLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [lessonName, setLessonName] = useState('');
   const [lessonGroup, setLessonGroup] = useState('');
@@ -20,10 +21,33 @@ const UpdateLessonScreen = () => {
     try {
       const jsonValue = await AsyncStorage.getItem('lessons');
       const loadedLessons = jsonValue != null ? JSON.parse(jsonValue) : [];
-      setLessons(loadedLessons);
+      setLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
+      setFilteredLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
     } catch (e) {
       console.error('Error loading lessons:', e);
     }
+  };
+
+  const handleSearch = () => {
+    const filtered = lessons.filter((lesson) =>
+      lesson.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredLessons(filtered.sort((a, b) => a.name.localeCompare(b.name)));
+  };
+
+  const highlightText = (text, highlight) => {
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return (
+      <Text>
+        {parts.map((part, index) =>
+          part.toLowerCase() === highlight.toLowerCase() ? (
+            <Text key={index} style={styles.highlight}>{part}</Text>
+          ) : (
+            part
+          )
+        )}
+      </Text>
+    );
   };
 
   const handleLessonSelect = (lessonId) => {
@@ -66,12 +90,13 @@ const UpdateLessonScreen = () => {
     }
   };
 
-  const handleSearch = () => {
-    const filtered = lessons.filter((lesson) =>
-      lesson.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setLessons(filtered);
-  };
+  const renderLesson = ({ item }) => (
+    <TouchableOpacity onPress={() => handleLessonSelect(item.id)}>
+      <View style={styles.lessonContainer}>
+        {highlightText(item.name, searchQuery)}
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -84,15 +109,10 @@ const UpdateLessonScreen = () => {
       />
       <Button title="Search" onPress={handleSearch} />
       <FlatList
-        data={lessons.sort((a, b) => a.name.localeCompare(b.name))}
+        data={filteredLessons}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleLessonSelect(item.id)}>
-            <View style={styles.lessonContainer}>
-              <Text>{item.name}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
+        renderItem={renderLesson}
+        style={styles.list}
       />
       <Modal
         animationType="slide"
@@ -149,19 +169,23 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    width: '100%',
-    padding: 12,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 5,
     marginBottom: 10,
+  },
+  list: {
+    marginBottom: 20,
   },
   lessonContainer: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     marginBottom: 10,
+  },
+  highlight: {
+    backgroundColor: 'yellow',
   },
   modalContainer: {
     flex: 1,
