@@ -71,8 +71,6 @@ const FormGenerator = () => {
           questions: formQuestions,
         });
         Alert.alert('Form Saved');
-        // const newDocRef = doc(collection(db, formName));
-        // await setDoc(newDocRef, {});
         setFormName('');
         setFields([]);
       }
@@ -157,12 +155,12 @@ const FormGenerator = () => {
           </View>
         ))}
         <View style={styles.fieldControls}>
-          <TouchableOpacity style={styles.addButton} onPress={addField}>
-            <Text style={styles.addButtonText}>Add Field</Text>
+          <TouchableOpacity style={[styles.roundButton, styles.addButton]} onPress={addField}>
+            <Text style={styles.buttonText}>Add Field</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.saveButton} onPress={saveForm}>
-          <Text style={styles.saveButtonText}>Save Form</Text>
+        <TouchableOpacity style={[styles.roundButton, styles.saveButton]} onPress={saveForm}>
+          <Text style={styles.buttonText}>Save Form</Text>
         </TouchableOpacity>
         {datePickerVisible && (
           <DateTimePicker
@@ -202,7 +200,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
+    borderRadius: 20,
     backgroundColor: '#fff',
     marginBottom: 20,
   },
@@ -211,7 +209,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
+    borderRadius: 20,
     backgroundColor: '#fff',
     marginBottom: 20,
   },
@@ -222,29 +220,46 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   addButton: {
-    padding: 12,
-    backgroundColor: '#4CAF50',
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 5,
-    marginTop:-15,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    backgroundColor: '#4CAF50', // Green color
   },
   saveButton: {
-    width: '90%',
-    padding: 15,
-    backgroundColor: '#2196F3',
-    borderRadius: 8,
-    alignItems: 'center',
+    backgroundColor: '#2196F3', // Blue color
   },
-  saveButtonText: {
+  buttonText: {
     color: '#fff',
-    fontSize: 18,
     fontWeight: 'bold',
   },
+  pickerButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pickerButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 15,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
 });
+
 export default FormGenerator;

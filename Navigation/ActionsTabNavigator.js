@@ -6,7 +6,7 @@ import CreateUserScreen from '../screens/CreateUserScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import UpdateUserScreen from '../screens/UpdateUserScreen';
 import CreateGroupScreen from '../screens/CreateGroupsScreen';
-import LessonsScreen from '../screens/LessonsScreen';
+import CreateLessonsScreen from '../screens/CreateLessonsScreen';
 import UpdateLessonScreen from '../screens/UpdateLessonScreen';
 import CreateSchoolScreen from '../screens/CreateSchoolScreen';
 import UpdateSchoolScreen from '../screens/UpdateSchoolScreen';
@@ -26,7 +26,7 @@ const ActionsTabNavigator = () => {
     } else if (user["actionType"] === 'Group') {
       return <CreateGroupScreen />;
     } else if (user["actionType"] === 'Lessons') {
-      return <LessonsScreen />;
+      return <CreateLessonsScreen />;
     } else if (user.actionType === 'Schools') {
       return <CreateSchoolScreen />;
     } else {

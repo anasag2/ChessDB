@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UpdateSchoolScreen = () => {
+  const [originalSchools, setOriginalSchools] = useState([]);
   const [schools, setSchools] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState('');
   const [schoolName, setSchoolName] = useState('');
   const [supervisorName, setSupervisorName] = useState('');
   const [supervisorContact, setSupervisorContact] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     loadSchools();
@@ -18,7 +20,9 @@ const UpdateSchoolScreen = () => {
     try {
       const jsonValue = await AsyncStorage.getItem('schools');
       const loadedSchools = jsonValue != null ? JSON.parse(jsonValue) : [];
-      setSchools(loadedSchools.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
+      const sortedSchools = loadedSchools.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+      setOriginalSchools(sortedSchools);
+      setSchools(sortedSchools);
     } catch (e) {
       console.error('Error loading schools:', e);
     }
@@ -30,10 +34,11 @@ const UpdateSchoolScreen = () => {
     setSchoolName(school.schoolName);
     setSupervisorName(school.supervisorName);
     setSupervisorContact(school.supervisorContact);
+    setModalVisible(true);
   };
 
   const handleUpdateSchool = async () => {
-    const updatedSchools = schools.map((school) =>
+    const updatedSchools = originalSchools.map((school) =>
       school.id === selectedSchool
         ? { ...school, schoolName, supervisorName, supervisorContact }
         : school
@@ -43,18 +48,20 @@ const UpdateSchoolScreen = () => {
       await AsyncStorage.setItem('schools', JSON.stringify(updatedSchools));
       alert('School updated successfully!');
       loadSchools(); // Reload schools to reflect the update
+      setModalVisible(false);
     } catch (e) {
       console.error('Error updating school:', e);
     }
   };
 
   const handleDeleteSchool = async () => {
-    const filteredSchools = schools.filter((school) => school.id !== selectedSchool);
+    const filteredSchools = originalSchools.filter((school) => school.id !== selectedSchool);
 
     try {
       await AsyncStorage.setItem('schools', JSON.stringify(filteredSchools));
       alert('School deleted successfully!');
       loadSchools(); // Reload schools to reflect the deletion
+      setModalVisible(false);
       setSelectedSchool('');
       setSchoolName('');
       setSupervisorName('');
@@ -65,13 +72,30 @@ const UpdateSchoolScreen = () => {
   };
 
   const handleSearch = () => {
-    const filtered = schools.filter((school) => school.schoolName.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filtered = originalSchools.filter((school) =>
+      school.schoolName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
     setSchools(filtered.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
+  };
+
+  const highlightText = (text, highlight) => {
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return (
+      <Text>
+        {parts.map((part, index) =>
+          part.toLowerCase() === highlight.toLowerCase() ? (
+            <Text key={index} style={styles.highlight}>{part}</Text>
+          ) : (
+            part
+          )
+        )}
+      </Text>
+    );
   };
 
   const renderSchoolItem = ({ item }) => (
     <TouchableOpacity onPress={() => handleSchoolSelect(item.id)} style={styles.schoolItem}>
-      <Text>{item.schoolName}</Text>
+      {highlightText(item.schoolName, searchQuery)}
     </TouchableOpacity>
   );
 
@@ -84,44 +108,58 @@ const UpdateSchoolScreen = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      <Button title="Search" onPress={handleSearch} />
+      <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleSearch}>
+        <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
       <FlatList
         data={schools}
         keyExtractor={(item) => item.id}
         renderItem={renderSchoolItem}
         style={styles.list}
       />
-      {selectedSchool ? (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="School Name"
-            value={schoolName}
-            onChangeText={setSchoolName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Supervisor Name"
-            value={supervisorName}
-            onChangeText={setSupervisorName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Supervisor Contact"
-            value={supervisorContact}
-            onChangeText={setSupervisorContact}
-            keyboardType="phone-pad"
-          />
-          <Button title="Update School" onPress={handleUpdateSchool} />
-          <Button title="Delete School" onPress={handleDeleteSchool} color="red" />
-        </>
-      ) : (
-        <Text>Please select a school to update or delete.</Text>
-      )}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TextInput
+              style={styles.input}
+              placeholder="School Name"
+              value={schoolName}
+              onChangeText={setSchoolName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Supervisor Name"
+              value={supervisorName}
+              onChangeText={setSupervisorName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Supervisor Contact"
+              value={supervisorContact}
+              onChangeText={setSupervisorContact}
+              keyboardType="phone-pad"
+            />
+            <TouchableOpacity style={[styles.roundButton, styles.updateButton]} onPress={handleUpdateSchool}>
+              <Text style={styles.buttonText}>Update School</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.roundButton, styles.deleteButton]} onPress={handleDeleteSchool}>
+              <Text style={styles.buttonText}>Delete School</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.roundButton, styles.closeButton]} onPress={() => setModalVisible(false)}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
- 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -133,14 +171,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
-    width: '100%',
-    padding: 12,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 20,
     marginBottom: 10,
   },
   list: {
@@ -150,6 +187,46 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    marginBottom: 10,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+  },
+  highlight: {
+    backgroundColor: 'yellow',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 20,
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  searchButton: {
+    backgroundColor: '#2196F3', // Blue color
+  },
+  updateButton: {
+    backgroundColor: '#2199F9', // Blue color
+  },
+  deleteButton: {
+    backgroundColor: 'red', // Red color
+  },
+  closeButton: {
+    backgroundColor: '#777', // Gray color
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
