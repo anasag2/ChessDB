@@ -4,8 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UpdateSchoolScreen = () => {
   const [schools, setSchools] = useState([]);
-  const [filteredSchools, setFilteredSchools] = useState([]);
-  const [selectedSchool, setSelectedSchool] = useState(null);
+  const [selectedSchool, setSelectedSchool] = useState('');
   const [schoolName, setSchoolName] = useState('');
   const [supervisorName, setSupervisorName] = useState('');
   const [supervisorContact, setSupervisorContact] = useState('');
@@ -21,30 +20,9 @@ const UpdateSchoolScreen = () => {
       const jsonValue = await AsyncStorage.getItem('schools');
       const loadedSchools = jsonValue != null ? JSON.parse(jsonValue) : [];
       setSchools(loadedSchools.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
-      setFilteredSchools(loadedSchools.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
     } catch (e) {
       console.error('Error loading schools:', e);
     }
-  };
-
-  const handleSearch = () => {
-    const filtered = schools.filter((school) => school.schoolName.toLowerCase().includes(searchQuery.toLowerCase()));
-    setFilteredSchools(filtered.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
-  };
-
-  const highlightText = (text, highlight) => {
-    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
-    return (
-      <Text>
-        {parts.map((part, index) =>
-          part.toLowerCase() === highlight.toLowerCase() ? (
-            <Text key={index} style={styles.highlight}>{part}</Text>
-          ) : (
-            part
-          )
-        )}
-      </Text>
-    );
   };
 
   const handleSchoolSelect = (schoolId) => {
@@ -80,21 +58,39 @@ const UpdateSchoolScreen = () => {
       await AsyncStorage.setItem('schools', JSON.stringify(filteredSchools));
       alert('School deleted successfully!');
       loadSchools(); // Reload schools to reflect the deletion
-      setSelectedSchool(null);
+      setModalVisible(false);
+      setSelectedSchool('');
       setSchoolName('');
       setSupervisorName('');
       setSupervisorContact('');
-      setModalVisible(false);
     } catch (e) {
       console.error('Error deleting school:', e);
     }
   };
 
-  const renderSchool = ({ item }) => (
-    <TouchableOpacity onPress={() => handleSchoolSelect(item.id)}>
-      <View style={styles.schoolContainer}>
-        {highlightText(item.schoolName, searchQuery)}
-      </View>
+  const handleSearch = () => {
+    const filtered = schools.filter((school) => school.schoolName.toLowerCase().includes(searchQuery.toLowerCase()));
+    setSchools(filtered.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
+  };
+
+  const highlightText = (text, highlight) => {
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return (
+      <Text>
+        {parts.map((part, index) =>
+          part.toLowerCase() === highlight.toLowerCase() ? (
+            <Text key={index} style={styles.highlight}>{part}</Text>
+          ) : (
+            part
+          )
+        )}
+      </Text>
+    );
+  };
+
+  const renderSchoolItem = ({ item }) => (
+    <TouchableOpacity onPress={() => handleSchoolSelect(item.id)} style={styles.schoolItem}>
+      {highlightText(item.schoolName, searchQuery)}
     </TouchableOpacity>
   );
 
@@ -107,11 +103,13 @@ const UpdateSchoolScreen = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      <Button title="Search" onPress={handleSearch} />
+      <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleSearch}>
+        <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
       <FlatList
-        data={filteredSchools}
+        data={schools}
         keyExtractor={(item) => item.id}
-        renderItem={renderSchool}
+        renderItem={renderSchoolItem}
         style={styles.list}
       />
       <Modal
@@ -141,9 +139,15 @@ const UpdateSchoolScreen = () => {
               onChangeText={setSupervisorContact}
               keyboardType="phone-pad"
             />
-            <Button title="Update School" onPress={handleUpdateSchool} />
-            <Button title="Delete School" onPress={handleDeleteSchool} color="red" />
-            <Button title="Close" onPress={() => setModalVisible(false)} />
+            <TouchableOpacity style={[styles.roundButton, styles.updateButton]} onPress={handleUpdateSchool}>
+              <Text style={styles.buttonText}>Update School</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.roundButton, styles.deleteButton]} onPress={handleDeleteSchool}>
+              <Text style={styles.buttonText}>Delete School</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.roundButton, styles.closeButton]} onPress={() => setModalVisible(false)}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -162,22 +166,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 20,
     marginBottom: 10,
   },
   list: {
     marginBottom: 20,
   },
-  schoolContainer: {
+  schoolItem: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     marginBottom: 10,
+    borderRadius: 20,
+    backgroundColor: '#fff',
   },
   highlight: {
     backgroundColor: 'yellow',
@@ -192,7 +199,29 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: 'white',
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 20,
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  searchButton: {
+    backgroundColor: '#2196F3', // Blue color
+  },
+  updateButton: {
+    backgroundColor: '#2199F9', // Blue color
+  },
+  deleteButton: {
+    backgroundColor: 'red', // Red color
+  },
+  closeButton: {
+    backgroundColor: '#777', // Gray color
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

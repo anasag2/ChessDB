@@ -1,28 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CreateSchoolScreen = () => {
+const SchoolsScreen = () => {
   const [schoolName, setSchoolName] = useState('');
   const [supervisorName, setSupervisorName] = useState('');
   const [supervisorContact, setSupervisorContact] = useState('');
 
-  const handleSaveSchool = async () => {
+  const saveSchool = async () => {
+    const newSchool = {
+      id: new Date().toISOString(),
+      schoolName,
+      supervisorName,
+      supervisorContact,
+    };
+
     try {
-      const schools = await AsyncStorage.getItem('schools');
-      const schoolsArray = schools ? JSON.parse(schools) : [];
-      const newSchool = {
-        id: Date.now().toString(),
-        schoolName,
-        supervisorName,
-        supervisorContact,
-      };
-      schoolsArray.push(newSchool);
-      await AsyncStorage.setItem('schools', JSON.stringify(schoolsArray));
-      alert('School saved successfully!');
-      setSchoolName('');
-      setSupervisorName('');
-      setSupervisorContact('');
+      const jsonValue = await AsyncStorage.getItem('schools');
+      const schools = jsonValue != null ? JSON.parse(jsonValue) : [];
+      schools.push(newSchool);
+      await AsyncStorage.setItem('schools', JSON.stringify(schools));
+      Alert.alert('School saved successfully!');
     } catch (e) {
       console.error('Error saving school:', e);
     }
@@ -50,7 +48,9 @@ const CreateSchoolScreen = () => {
         onChangeText={setSupervisorContact}
         keyboardType="phone-pad"
       />
-      <Button title="Save School" onPress={handleSaveSchool} />
+      <TouchableOpacity style={[styles.roundButton, styles.saveButton]} onPress={saveSchool}>
+        <Text style={styles.buttonText}>Save School</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -66,16 +66,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
-    width: '100%',
-    padding: 12,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 20,
     marginBottom: 10,
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  saveButton: {
+    backgroundColor: '#2196F3', // Blue 
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
-export default CreateSchoolScreen;
+export default SchoolsScreen;

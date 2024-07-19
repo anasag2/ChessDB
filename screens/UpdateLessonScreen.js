@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UpdateLessonScreen = () => {
   const [lessons, setLessons] = useState([]);
-  const [filteredLessons, setFilteredLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [lessonName, setLessonName] = useState('');
   const [lessonGroup, setLessonGroup] = useState('');
@@ -22,32 +21,9 @@ const UpdateLessonScreen = () => {
       const jsonValue = await AsyncStorage.getItem('lessons');
       const loadedLessons = jsonValue != null ? JSON.parse(jsonValue) : [];
       setLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
-      setFilteredLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
     } catch (e) {
       console.error('Error loading lessons:', e);
     }
-  };
-
-  const handleSearch = () => {
-    const filtered = lessons.filter((lesson) =>
-      lesson.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredLessons(filtered.sort((a, b) => a.name.localeCompare(b.name)));
-  };
-
-  const highlightText = (text, highlight) => {
-    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
-    return (
-      <Text>
-        {parts.map((part, index) =>
-          part.toLowerCase() === highlight.toLowerCase() ? (
-            <Text key={index} style={styles.highlight}>{part}</Text>
-          ) : (
-            part
-          )
-        )}
-      </Text>
-    );
   };
 
   const handleLessonSelect = (lessonId) => {
@@ -90,13 +66,27 @@ const UpdateLessonScreen = () => {
     }
   };
 
-  const renderLesson = ({ item }) => (
-    <TouchableOpacity onPress={() => handleLessonSelect(item.id)}>
-      <View style={styles.lessonContainer}>
-        {highlightText(item.name, searchQuery)}
-      </View>
-    </TouchableOpacity>
-  );
+  const handleSearch = () => {
+    const filtered = lessons.filter((lesson) =>
+      lesson.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setLessons(filtered.sort((a, b) => a.name.localeCompare(b.name)));
+  };
+
+  const highlightText = (text, highlight) => {
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return (
+      <Text>
+        {parts.map((part, index) =>
+          part.toLowerCase() === highlight.toLowerCase() ? (
+            <Text key={index} style={styles.highlight}>{part}</Text>
+          ) : (
+            part
+          )
+        )}
+      </Text>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -107,12 +97,19 @@ const UpdateLessonScreen = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      <Button title="Search" onPress={handleSearch} />
+      <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleSearch}>
+        <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
       <FlatList
-        data={filteredLessons}
+        data={lessons}
         keyExtractor={(item) => item.id}
-        renderItem={renderLesson}
-        style={styles.list}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => handleLessonSelect(item.id)}>
+            <View style={styles.lessonContainer}>
+              {highlightText(item.name, searchQuery)}
+            </View>
+          </TouchableOpacity>
+        )}
       />
       <Modal
         animationType="slide"
@@ -146,9 +143,15 @@ const UpdateLessonScreen = () => {
               value={lessonForm}
               onChangeText={setLessonForm}
             />
-            <Button title="Update Lesson" onPress={handleUpdateLesson} />
-            <Button title="Delete Lesson" onPress={handleDeleteLesson} color="red" />
-            <Button title="Close" onPress={() => setModalVisible(false)} />
+            <TouchableOpacity style={[styles.roundButton, styles.updateButton]} onPress={handleUpdateLesson}>
+              <Text style={styles.buttonText}>Update Lesson</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.roundButton, styles.deleteButton]} onPress={handleDeleteLesson}>
+              <Text style={styles.buttonText}>Delete Lesson</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.roundButton, styles.closeButton]} onPress={() => setModalVisible(false)}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -167,12 +170,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 20,
     marginBottom: 10,
   },
   list: {
@@ -183,6 +187,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     marginBottom: 10,
+    borderRadius: 20,
+    backgroundColor: '#fff',
   },
   highlight: {
     backgroundColor: 'yellow',
@@ -197,8 +203,31 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: 'white',
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 20,
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  searchButton: {
+    backgroundColor: '#2196F3', // Blue color 
+  },
+  updateButton: {
+    backgroundColor: '#2196F3', // Blue color
+  },
+  deleteButton: {
+    backgroundColor: 'red', // Red color for delete button
+  },
+  closeButton: {
+    backgroundColor: '#777', // Gray color for close button
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
 export default UpdateLessonScreen;
+
