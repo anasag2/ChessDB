@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UpdateSchoolScreen = () => {
+  const [originalSchools, setOriginalSchools] = useState([]);
   const [schools, setSchools] = useState([]);
   const [selectedSchool, setSelectedSchool] = useState('');
   const [schoolName, setSchoolName] = useState('');
@@ -19,7 +20,9 @@ const UpdateSchoolScreen = () => {
     try {
       const jsonValue = await AsyncStorage.getItem('schools');
       const loadedSchools = jsonValue != null ? JSON.parse(jsonValue) : [];
-      setSchools(loadedSchools.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
+      const sortedSchools = loadedSchools.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+      setOriginalSchools(sortedSchools);
+      setSchools(sortedSchools);
     } catch (e) {
       console.error('Error loading schools:', e);
     }
@@ -35,7 +38,7 @@ const UpdateSchoolScreen = () => {
   };
 
   const handleUpdateSchool = async () => {
-    const updatedSchools = schools.map((school) =>
+    const updatedSchools = originalSchools.map((school) =>
       school.id === selectedSchool
         ? { ...school, schoolName, supervisorName, supervisorContact }
         : school
@@ -52,7 +55,7 @@ const UpdateSchoolScreen = () => {
   };
 
   const handleDeleteSchool = async () => {
-    const filteredSchools = schools.filter((school) => school.id !== selectedSchool);
+    const filteredSchools = originalSchools.filter((school) => school.id !== selectedSchool);
 
     try {
       await AsyncStorage.setItem('schools', JSON.stringify(filteredSchools));
@@ -69,7 +72,9 @@ const UpdateSchoolScreen = () => {
   };
 
   const handleSearch = () => {
-    const filtered = schools.filter((school) => school.schoolName.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filtered = originalSchools.filter((school) =>
+      school.schoolName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
     setSchools(filtered.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
   };
 
