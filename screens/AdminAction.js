@@ -63,8 +63,8 @@ const AdminActionScreen = () => {
     actionType = "Group";
     navigation.navigate('CRUDPage', { actionType });
   };
-  const handleStudents = async() => {
-    actionType = "Students";
+  const handleSchools = async() => {
+    actionType = "Schools";
     navigation.navigate('CRUDPage', { actionType });
   };
   const handleLessons = async() => {
@@ -97,8 +97,8 @@ const AdminActionScreen = () => {
         <TouchableOpacity style={styles.button} onPress={handleGroup}>
           <Text style={styles.buttonText}>Groups</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleStudents}>
-          <Text style={styles.buttonText}>Students</Text>
+        <TouchableOpacity style={styles.button} onPress={handleSchools}>
+          <Text style={styles.buttonText}>Schools</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleLessons}>
           <Text style={styles.buttonText}>Lessons</Text>

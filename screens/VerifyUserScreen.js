@@ -20,7 +20,7 @@ const VerifyUserScreen = () => {
         };
       });
       if(user == undefined){
-        alert("You have entered wrong email or ID");
+        alert("You have entered wrong Gmail or ID");
       }
       else{
         let userID = user.id
@@ -44,7 +44,7 @@ const VerifyUserScreen = () => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Email"
+            placeholder="Gmail"
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
