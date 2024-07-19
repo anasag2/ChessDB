@@ -8,6 +8,8 @@ import UpdateUserScreen from '../screens/UpdateUserScreen';
 import CreateGroupScreen from '../screens/CreateGroupsScreen';
 import LessonsScreen from '../screens/LessonsScreen';
 import UpdateLessonScreen from '../screens/UpdateLessonScreen';
+import CreateSchoolScreen from '../screens/CreateSchoolScreen';
+import UpdateSchoolScreen from '../screens/UpdateSchoolScreen';
 import { useRoute } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
@@ -25,6 +27,8 @@ const ActionsTabNavigator = () => {
       return <CreateGroupScreen />;
     } else if (user["actionType"] === 'Lessons') {
       return <LessonsScreen />;
+    } else if (user.actionType === 'Schools') {
+      return <CreateSchoolScreen />;
     } else {
       return <SettingsScreen />;
     }
@@ -37,6 +41,8 @@ const ActionsTabNavigator = () => {
       return <UpdateUserScreen />;
     } else if (user["actionType"] === 'Lessons') {
       return <UpdateLessonScreen />;
+    } else if (user.actionType === 'Schools') {
+      return <UpdateSchoolScreen />;
     } else {
       return <SettingsScreen />;
     }
