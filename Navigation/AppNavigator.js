@@ -25,7 +25,7 @@ const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="Login"
         screenOptions={({ navigation }) => ({
-          headerStyle: { height: 100, backgroundColor: '#fff' },
+          headerStyle: { height: 80, backgroundColor: '#fff' },
           headerTitle: ' ',
           headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
         })}
