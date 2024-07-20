@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import db from '../firebaseConfig.js';
-import { doc, deleteDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc, collection, getDocs, getDoc } from 'firebase/firestore';
 
 const SearchGroupScreen = () => {
   const [searchText, setSearchText] = useState('');
@@ -75,8 +75,8 @@ const SearchGroupScreen = () => {
         });
         
         // Update the groups state with the new data
-        setGroups(prevGroups => prevGroups.map(group => 
-          group.id === selectedGroup.id ? selectedGroup : group
+        setGroups(prevGroups => prevGroups.map(group =>
+          group.id === selectedGroup.id ? { ...group, ...selectedGroup } : group
         ));
         
         setModalVisible(false);
@@ -93,14 +93,49 @@ const SearchGroupScreen = () => {
     setSelectedGroup(prevGroup => ({ ...prevGroup, [field]: value }));
   };
   
-  const handleUserToggle = (userId) => {
+  const handleUserToggle = async (userId) => {
     setSelectedGroup(prevGroup => {
-      const updatedTeachers = prevGroup.teachers?.includes(userId)
+      // Determine if the user is already a member of the group
+      const isMember = prevGroup.teachers.includes(userId);
+      const updatedTeachers = isMember
         ? prevGroup.teachers.filter(id => id !== userId)
-        : [...(prevGroup.teachers || []), userId];
+        : [...prevGroup.teachers, userId];
+      
+      // Update the group in Firestore
+      const groupRef = doc(db, 'groups', prevGroup.id);
+      updateDoc(groupRef, {
+        teachers: updatedTeachers
+      }).then(() => {
+        console.log("Group updated successfully.");
+      }).catch(error => {
+        console.error("Error updating group:", error);
+      });
+  
+      // Optionally update the user document in Firestore
+      // This part assumes users have a 'groups' field listing their group memberships
+      const userRef = doc(db, 'users', userId);
+      getDoc(userRef).then(docSnap => {
+        if (docSnap.exists()) {
+          const userGroups = docSnap.data().groups || [];
+          const updatedUserGroups = isMember
+            ? userGroups.filter(g => g !== prevGroup.id)
+            : [...userGroups, prevGroup.id];
+          
+          updateDoc(userRef, {
+            groups: updatedUserGroups
+          }).then(() => {
+            console.log("User updated successfully.");
+          }).catch(error => {
+            console.error("Error updating user groups:", error);
+          });
+        }
+      });
+  
       return { ...prevGroup, teachers: updatedTeachers };
     });
   };
+  
+  
   const handleEditGroup = (group) => {
     setSelectedGroup({
       ...group,
