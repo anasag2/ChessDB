@@ -25,6 +25,7 @@ const UpdateLessonScreen = () => {
       const loadedLessons = lessonsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setOriginalLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
       setLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
+      console.log(loadedLessons);
     } catch (e) {
       console.error('Error loading lessons:', e);
     }

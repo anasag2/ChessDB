@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import db from '../firebaseConfig.js';
+import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 const UpdateSchoolScreen = () => {
   const [originalSchools, setOriginalSchools] = useState([]);
@@ -18,11 +20,12 @@ const UpdateSchoolScreen = () => {
 
   const loadSchools = async () => {
     try {
-      const jsonValue = await AsyncStorage.getItem('schools');
-      const loadedSchools = jsonValue != null ? JSON.parse(jsonValue) : [];
-      const sortedSchools = loadedSchools.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
-      setOriginalSchools(sortedSchools);
-      setSchools(sortedSchools);
+      const schoolsRef = collection(db,'schools');
+      const schoolsSnapshot = await getDocs(schoolsRef);
+      const loadedSchools = schoolsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setOriginalSchools(loadedSchools);
+      setSchools(loadedSchools);
+      console.log(loadedSchools);
     } catch (e) {
       console.error('Error loading schools:', e);
     }
@@ -40,7 +43,7 @@ const UpdateSchoolScreen = () => {
   const handleUpdateSchool = async () => {
     const updatedSchools = originalSchools.map((school) =>
       school.id === selectedSchool
-        ? { ...school, schoolName, supervisorName, supervisorContact }
+        ? { ...school, supervisorName, supervisorContact }
         : school
     );
 
@@ -56,7 +59,6 @@ const UpdateSchoolScreen = () => {
 
   const handleDeleteSchool = async () => {
     const filteredSchools = originalSchools.filter((school) => school.id !== selectedSchool);
-
     try {
       await AsyncStorage.setItem('schools', JSON.stringify(filteredSchools));
       alert('School deleted successfully!');
@@ -92,10 +94,9 @@ const UpdateSchoolScreen = () => {
       </Text>
     );
   };
-
   const renderSchoolItem = ({ item }) => (
     <TouchableOpacity onPress={() => handleSchoolSelect(item.id)} style={styles.schoolItem}>
-      {highlightText(item.schoolName, searchQuery)}
+      {highlightText(item.id, searchQuery)}
     </TouchableOpacity>
   );
 
@@ -125,12 +126,6 @@ const UpdateSchoolScreen = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TextInput
-              style={styles.input}
-              placeholder="School Name"
-              value={schoolName}
-              onChangeText={setSchoolName}
-            />
             <TextInput
               style={styles.input}
               placeholder="Supervisor Name"
