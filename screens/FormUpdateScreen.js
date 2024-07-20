@@ -1,40 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  FlatList,
+  StyleSheet,
+  Modal,
+  TouchableOpacity,
+} from 'react-native';
 import db from '../firebaseConfig.js';
-import { getDoc, writeBatch, doc, collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc } from 'firebase/firestore';
 
-const FormUpdateScreen = () => {
-  const [users, setUsers] = useState([]);
+const UpdateFormScreen = () => {
+  const [forms, setForms] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [editedUser, setEditedUser] = useState(null);
+  const [filteredForms, setFilteredForms] = useState([]);
+  const [selectedForm, setSelectedForm] = useState(null);
+  const [userGroups, setUserGroups] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    const loadUsers = async () => {
-      const u = await getDocs(collection(db, 'forms'));
-      const userList = [];
-      u.forEach((doc) => {
-        let user_infos = {
-          name: doc.id,
-          question: doc.data().questions, 
-        };
-        userList.push(user_infos);
+    const loadForms = async () => {
+      const formsSnapshot = await getDocs(collection(db, 'forms'));
+      const formList = [];
+      formsSnapshot.forEach((doc) => {
+        formList.push({ id: doc.id, ...doc.data() });
       });
-      userList.sort((a, b) => a.name.localeCompare(b.name));
-      setUsers(userList);
-      setFilteredUsers(userList);
+      formList.sort((a, b) => a.id.localeCompare(b.id));
+      setForms(formList);
+      setFilteredForms(formList);
     };
 
-    loadUsers();
+    loadForms();
   }, []);
 
   const handleSearch = () => {
-    const filtered = users.filter(user => user.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    setFilteredUsers(filtered);
+    const filtered = forms.filter(form => form.id.toLowerCase().includes(searchQuery.toLowerCase()));
+    setFilteredForms(filtered);
   };
 
   const highlightText = (text, highlight) => {
@@ -52,99 +55,82 @@ const FormUpdateScreen = () => {
     );
   };
 
-  const handleEdit = () => {
-    setEditMode(true);
-    setEditedUser({ ...selectedUser });
-  };
-  
-  const emailValidation = () => {
-    const gmailRegex = /^[a-zA-Z0-9._%+-]+(@gmail\.com)$/;
-    return gmailRegex.test(editedUser.email);
-  };
+  const handleFormPress = async (formId) => {
+    try {
+      const formRef = collection(db, formId);
+      const formSnapshot = await getDocs(formRef);
+      const userGroupList = [];
 
-  const passwordValidation = () => {
-    p = editedUser.password;
-    numCounter = 0;
-    if(p.length === 0 || p.length < 8){
-      return false;
-    }
-    for (let char of p) {
-      let charCode = char.charCodeAt(0);
-      if(charCode >= 48 && charCode <= 57){
-        numCounter += 1;
+      for (const docSnap of formSnapshot.docs) {
+        const data = docSnap.data();
+        const groupRef = doc(db, 'groups', data.group);
+        const groupSnap = await getDoc(groupRef);
+        userGroupList.push({
+          userName: data.userName,
+          groupName: groupSnap.data().groupName
+        });
       }
-    }
-    if(numCounter < 3){
-       return false;
-    }
-    return true;
-  };
 
-  const handleSave = async () => {
-    if(emailValidation() === false){
-      alert("unsupported email");
-    }else{
-      if(passwordValidation() === false){
-        alert("you have entered an invalid password\npassword should be made up of 3 numbers annd 5 letters at least");
-      }else{
-        const updatedUsers = users.map(user => (user.id === editedUser.id ? editedUser : user));
-        setUsers(updatedUsers);
-        setFilteredUsers(updatedUsers);
-        setSelectedUser(editedUser);
-        const batch = writeBatch(db);
-        const userRef = doc(db, "users", editedUser.id);
-        const userSnap = await getDoc(userRef);
-        const userData = userSnap.data();
-        for (let [key, value] of Object.entries(editedUser)) {
-          if(key !== 'id'){
-            if (value !== userData[key]){
-              //console.log([key]);
-              batch.update(userRef, {[key]: value});
-            }
-          }
-        };
-        setEditMode(false);
-        setModalVisible(false); // Close modal after saving
-        //console.log('User Data:', JSON.stringify(editedUser));
-        await batch.commit();
-      }
+      setUserGroups(userGroupList);
+      setSelectedForm(formId);
+      setModalVisible(true);
+    } catch (error) {
+      console.error('Error fetching user groups:', error);
     }
   };
 
-  const handleInputChange = (field, value) => {
-    setEditedUser({ ...editedUser, [field]: value });
-  };
-
-  const openModal = (user) => {
-    setSelectedUser(user);
-    setEditedUser(user);
-    setModalVisible(true);
-    setEditMode(false);
-  };
-
-  const renderUser = ({ item }) => (
-    <TouchableOpacity onPress={() => openModal(item)}>
-      <View style={styles.userContainer}>
-        {highlightText(item.name, searchQuery)}
+  const renderForm = ({ item }) => (
+    <TouchableOpacity onPress={() => handleFormPress(item.id)}>
+      <View style={styles.formContainer}>
+        {highlightText(item.id, searchQuery)}
       </View>
     </TouchableOpacity>
+  );
+
+  const renderUserGroup = ({ item }) => (
+    <View style={styles.userGroupContainer}>
+      <Text>{item.userName} -> {item.groupName}</Text>
+    </View>
   );
 
   return (
     <View style={styles.container}>
       <TextInput
         style={styles.input}
-        placeholder="Search by name"
+        placeholder="Search Forms"
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
       <Button title="Search" onPress={handleSearch} />
       <FlatList
-        data={filteredUsers}
-        keyExtractor={(item) => item.name}
-        renderItem={renderUser}
+        data={filteredForms}
+        keyExtractor={(item) => item.id}
+        renderItem={renderForm}
         style={styles.list}
       />
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Teachers and Groups for {selectedForm}</Text>
+            <FlatList
+              data={userGroups}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={renderUserGroup}
+            />
+            <TouchableOpacity
+              style={[styles.roundButton, styles.closeButton]}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -153,7 +139,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    marginBottom:50,
+    backgroundColor: '#f5f5f5',
   },
   input: {
     borderWidth: 1,
@@ -165,7 +151,13 @@ const styles = StyleSheet.create({
   list: {
     marginBottom: 20,
   },
-  userContainer: {
+  formContainer: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginBottom: 10,
+  },
+  userGroupContainer: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
@@ -186,39 +178,19 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
   },
-  label: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  value: {
-    fontSize: 16,
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
     marginVertical: 10,
   },
-  picker: {
-    height: 50,
-    width: '100%',
+  closeButton: {
+    backgroundColor: '#2196F3',
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center', 
-    marginTop: 10,
-    
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
-  Close:{
-    marginTop: 10,
-  },
-  Edit:{
-    marginTop: 10,
-  },
-  Show:{
-    marginLeft: 10,
-  },
-  
 });
 
-export default FormUpdateScreen;
+export default UpdateFormScreen;
