@@ -1,29 +1,18 @@
-import React, { useState } from 'react';
-import { ScrollView, View, TextInput, Text, Button, StyleSheet } from 'react-native';
+import React, { useState, useLayoutEffect } from 'react';
+import { View, TextInput, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import db from '../firebaseConfig.js';
 import { doc, setDoc, collection, getDocs } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
 import MultiSelect from 'react-native-multiple-select';
-import { FlatList } from 'react-native';
 
-const CreateGroupScreen = () => {
+const CreateGroupScreen = ({ navigation }) => {
   const initialFormData = {
+    groupName: '', // Field for the group's name
     class: '',
     school: '',
-    coachName: '',
-    coachNumber: '',
-  };
-
-  const initialEditingState = {
-    class: true,
-    school: true,
-    coachName: true,
-    coachNumber: true,
   };
 
   const [selectedTeachers, setSelectedTeachers] = useState([]);
-
-  //this constant is what needs to be pulled out of the etachers collection in the database
   const teachers = [
     { id: 1, name: 'Sami' },
     { id: 2, name: 'Abdallah' },
@@ -32,114 +21,168 @@ const CreateGroupScreen = () => {
     { id: 5, name: 'Anas' },
   ];
 
+  // useLayoutEffect(() => {
+  //   console.log('navigation', navigation);
+  //   navigation.setOptions({
+  //     headerTitle: 'Create Group',
+  //     headerStyle: {
+  //       backgroundColor: '#f5f5f5', // Example background color
+  //     },
+  //     headerTitleStyle: {
+  //       fontWeight: 'bold',
+  //       // fontFamily: 'IBMPlexSans-Regular', // Ensure your custom font is loaded appropriately
+  //     },
+  //     headerTintColor: '#663D99', // Color for header back button and title
+  //   });
+  // }, [navigation]);
+
   const [formData, setFormData] = useState(initialFormData);
-  const [isEditing, setIsEditing] = useState(initialEditingState);
   const fields = Object.keys(formData);
 
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSave = async () => {
-  // Check if group already exists in the database
-  let groupExists = false;
-  const groupsSnapshot = await getDocs(collection(db, 'groups'));
-  groupsSnapshot.forEach((doc) => {
-    if (formData.id === doc.id) {
-      groupExists = true;
+    if (!formData.groupName) {
+      alert("Please enter a group name.");
+      return;
     }
-  });
+    
+    let groupExists = false;
+    const groupsSnapshot = await getDocs(collection(db, 'groups'));
+    groupsSnapshot.forEach(doc => {
+      if (doc.data().groupName === formData.groupName) {
+        groupExists = true;
+      }
+    });
 
-  if (groupExists) {
-    alert("A group with this ID already exists.");
-  } else {
-    const groupData = {
-      ...formData,
-      teachers: selectedTeachers,
-    };
+    if (groupExists) {
+      alert("A group with this name already exists.");
+    } else {
+      const groupData = {
+        ...formData,
+        teachers: selectedTeachers,
+      };
 
-    // Save to Firebase
-    await setDoc(doc(db, 'groups', formData.id), groupData);
-    alert("Group added successfully!");
+      await setDoc(doc(db, 'groups', formData.groupName), groupData);
+      alert("Group added successfully!");
 
-    // Reset formData and isEditing states
-    setFormData(initialFormData);
-    setIsEditing(initialEditingState);
-    setSelectedTeachers([]);
-  }
-};
+      setFormData(initialFormData);
+      setSelectedTeachers([]);
+    }
+  };
 
   return (
     <View style={styles.container}>
-    <FlatList
-      data={fields}
-      keyExtractor={(item) => item}
-      renderItem={({ item: field }) => (
-        <View style={styles.fieldContainer}>
-          {field === 'school' ? (
-            <Picker
-              selectedValue={formData.school}
-              onValueChange={(itemValue) =>
-                setFormData({ ...formData, school: itemValue })
-              }>
-              <Picker.Item label="School 1" value="school1" />
-              <Picker.Item label="School 2" value="school2" />
-              {/* Add more schools as needed */}
-            </Picker>
-          ) : (
-            <TextInput
-              style={styles.input}
-              value={formData[field]}
-              onChangeText={(text) => handleChange(field, text)}
-              placeholder={`Enter ${field}`}
-              keyboardType={field === 'coachNumber' ? 'number-pad' : 'default'}
+      <FlatList
+        data={fields}
+        keyExtractor={item => item}
+        renderItem={({ item: field }) => (
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>{field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}</Text>
+            {field === 'school' ? (
+              <Picker
+                selectedValue={formData.school}
+                onValueChange={itemValue => handleChange('school', itemValue)}
+                style={styles.input}>
+                <Picker.Item label="School 1" value="school1" />
+                <Picker.Item label="School 2" value="school2" />
+              </Picker>
+            ) : (
+              <TextInput
+                style={styles.input}
+                value={formData[field]}
+                onChangeText={text => handleChange(field, text)}
+                placeholder={`Enter ${field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}`}
+                keyboardType={field === 'coachNumber' ? 'number-pad' : 'default'}
+              />
+            )}
+          </View>
+        )}
+        ListFooterComponent={(
+          <>
+            <MultiSelect
+              items={teachers}
+              uniqueKey="id"
+              onSelectedItemsChange={setSelectedTeachers}
+              selectedItems={selectedTeachers}
+              selectText="Pick Teachers"
+              searchInputPlaceholderText="Search Teachers..."
+              tagRemoveIconColor={colors.yellow}
+              tagBorderColor={colors.purple}
+              tagTextColor={colors.purple}
+              selectedItemTextColor={colors.yellow}
+              selectedItemIconColor={colors.yellow}
+              itemTextColor={colors.purple}
+              displayKey="name"
+              searchInputStyle={{ color: colors.purple }}
+              submitButtonColor={colors.yellow}
+              submitButtonText="Submit"
             />
-          )}
-        </View>
-      )}
-    />
-    <MultiSelect
-      items={teachers}
-      uniqueKey="id"
-      onSelectedItemsChange={setSelectedTeachers}
-      selectedItems={selectedTeachers}
-      selectText="Pick Teachers"
-      searchInputPlaceholderText="Search Teachers..."
-      tagRemoveIconColor="#CCC"
-      tagBorderColor="#CCC"
-      tagTextColor="#CCC"
-      selectedItemTextColor="#CCC"
-      selectedItemIconColor="#CCC"
-      itemTextColor="#000"
-      displayKey="name"
-      searchInputStyle={{ color: '#CCC' }}
-      submitButtonColor="#CCC"
-      submitButtonText="Submit"
-    />
-    <Button title="Save" onPress={handleSave} />
-  </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.buttonStyle} onPress={handleSave}>
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+      />
+    </View>
   );
+};
+
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F'
 };
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#f5f5f5',
+    padding: 10,
+    backgroundColor: colors.lightGrey,
   },
   fieldContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
+    borderColor: colors.purple,
+    padding: 8,
     borderRadius: 5,
+    marginBottom: 5,
+    color: colors.purple,
+    backgroundColor: '#FFFFFF'
   },
   label: {
-    padding: 10,
     fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.purple,
+    marginBottom: 5,
   },
+  buttonContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  buttonStyle: {
+    backgroundColor: colors.yellow,
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
+    elevation: 4,
+  },
+  buttonText: {
+    color: colors.purple,
+    fontSize: 18,
+    fontWeight: 'bold'
+  }
 });
 
 export default CreateGroupScreen;

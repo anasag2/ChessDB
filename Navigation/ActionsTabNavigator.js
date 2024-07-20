@@ -4,6 +4,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import FormGenerator from '../screens/FormGenerator';
 import CreatUserScreen from '../screens/CreatUserScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import SearchGroupScreen from '../screens/SearchGroupScreen';
 import ReadUserScreen from '../screens/ReadUserScreen';
 import UpdateUserScreen from '../screens/UpdateUserScreen';
 import CreateGroupScreen from '../screens/CreateGroupsScreen';
@@ -46,7 +47,10 @@ const ActionsTabNavigator = () => {
       return <FormGenerator />;
     } else if (user["actionType"] === 'User') {
       return <UpdateUserScreen />;
-    } else {// we need to change this
+    } else if (user["actionType"] === 'Group') {
+      return <SearchGroupScreen />;
+    }
+    else {// we need to change this
       return <SettingsScreen />;
     }
   }
@@ -60,8 +64,8 @@ const ActionsTabNavigator = () => {
             case 'Create':
               iconName = 'plus-square';
               break;
-            case 'Update':
-              iconName = 'edit';
+            case 'search':
+              iconName = 'search';
               break;
             default:
               iconName = 'circle';
@@ -69,7 +73,7 @@ const ActionsTabNavigator = () => {
           }
           return <FontAwesome name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'tomato',
+        tabBarActiveTintColor: '#663D99',
         tabBarInactiveTintColor: 'gray',
         headerShown: false, // This hides the header
       })}
@@ -82,10 +86,10 @@ const ActionsTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Update"
+        name="search"
         component={UpdateActionType}
         options={{
-          tabBarLabel: 'Update',
+          tabBarLabel: 'search',
         }}
       />
     </Tab.Navigator>

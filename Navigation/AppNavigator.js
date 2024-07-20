@@ -10,6 +10,7 @@ import TabNavigator from './TabNavigator';
 import ActionsTabNavigator from './ActionsTabNavigator';
 import FormBuilderScreen from '../screens/FormBuilderScreen';
 import CustomHeader from '../components/BurgerMenu';
+import CreateGroupScreen from '../screens/CreateGroupsScreen';
 
 const Stack = createStackNavigator();
 
@@ -61,6 +62,7 @@ const AppNavigator = () => {
             headerRight: () => <CustomHeader navigation={navigation} toggleMenu={toggleMenu} />,
           })}
         />
+        <Stack.Screen name='AdminHomeScreen' component={CreateGroupScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

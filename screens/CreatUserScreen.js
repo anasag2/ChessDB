@@ -179,30 +179,53 @@ const CreateUserScreen = () => {
           )}
         </View>
       ))}
-      <Button title="Save" onPress={handleSave} />
+      <View style={styles.buttonContainer}>
+      <Button title="Save" onPress={handleSave} color ={colors.purple} />
+      </View>
     </ScrollView>
   );
+};
+
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F'
 };
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.lightGrey,
   },
   fieldContainer: {
     marginBottom: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.purple,
     padding: 10,
     borderRadius: 5,
+    fontSize: 16,
+    color: colors.purple,
+    backgroundColor: '#FFFFFF'
   },
   label: {
     padding: 10,
     fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.purple
   },
+  buttonContainer: {
+    marginTop: 10,
+    backgroundColor: colors.yellow,
+    borderRadius: 20,
+    padding: 10,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold'
+  }
 });
 
 export default CreateUserScreen;
