@@ -123,7 +123,7 @@ const UpdateFormScreen = () => {
   const renderUserGroup = ({ item }) => (
     <TouchableOpacity onPress={() => handleUserGroupPress(item)}>
       <View style={styles.userGroupContainer}>
-        <Text>{item.userName} -> {item.groupName}</Text>
+        <Text>{'User: '}{item.userName} -{'> Group: '} {item.groupName}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -181,7 +181,7 @@ const UpdateFormScreen = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Questions and Answers for {formDetails?.userName} -> {formDetails?.groupName}</Text>
+            <Text>Q&A for {'User: '}{formDetails?.userName} {'-> Group: '} {formDetails?.groupName}</Text>
             <FlatList
               data={formDetails?.questionsWithAnswers || []}
               keyExtractor={(item, index) => index.toString()}
