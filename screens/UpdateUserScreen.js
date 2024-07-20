@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal ,Platform} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import db from '../firebaseConfig.js';
 import { getDoc, writeBatch, doc, collection, getDocs } from 'firebase/firestore';
@@ -72,13 +72,6 @@ const UpdateUserScreen = () => {
     setEditedUser({ ...selectedUser });
   };
   
-  // const handleShowGroups = () => {
-
-  // };
-  // const handleShowForms = () => {
-
- 
-  // };
 
   const renderItem = ({ item }) => (
 <TouchableOpacity onPress={() => openModal(item)}>
@@ -225,7 +218,26 @@ const UpdateUserScreen = () => {
                     placeholder="Password"
                     secureTextEntry
                   />
-                  <View style={styles.pickerContainer}>
+                   {Platform.OS === 'ios' ? (
+              <TouchableOpacity
+                style={styles.pickerButton}
+                onPress={() => showPicker(index)}
+              >
+                <Text style={styles.pickerButtonText}>{editedUser.role}</Text>
+              </TouchableOpacity>
+            ) : (
+              <Picker
+                selectedValue={editedUser.role}
+                style={styles.picker}
+                onValueChange={(itemValue) =>
+                  handleFieldChange(index, 'type', itemValue)
+                }
+              >
+                <Picker.Item label="Admin" value="admin" />
+                      <Picker.Item label="Teacher" value="teacher" />
+              </Picker>
+            )}
+                  {/* <View style={styles.pickerContainer}>
                     <Picker
                       selectedValue={editedUser.role}
                       onValueChange={(itemValue) => handleInputChange('role', itemValue)}
@@ -234,7 +246,7 @@ const UpdateUserScreen = () => {
                       <Picker.Item label="Admin" value="admin" />
                       <Picker.Item label="Teacher" value="teacher" />
                     </Picker>
-                  </View>
+                  </View> */}
                   <Button title="Save" onPress={handleSave} />
                 </>
               ) : (
@@ -282,6 +294,7 @@ const UpdateUserScreen = () => {
                     data={data}
                     renderItem={renderItem}
                     keyExtractor={item => item.id}
+                    nestedScrollEnabled={true}
                     style={styles.list}
                     />
                     )}
@@ -302,6 +315,7 @@ const UpdateUserScreen = () => {
                    data={data}//change
                     renderItem={renderItem}
                     keyExtractor={item => item.id}
+                    nestedScrollEnabled={true}
                     style={styles.list}
                    />
                     )}

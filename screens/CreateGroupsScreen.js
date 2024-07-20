@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect, useEffect } from 'react';
 import { View, TextInput, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import db from '../firebaseConfig.js';
 import { doc, setDoc, collection, getDocs } from 'firebase/firestore';
@@ -13,13 +13,8 @@ const CreateGroupScreen = ({ navigation }) => {
   };
 
   const [selectedTeachers, setSelectedTeachers] = useState([]);
-  const teachers = [
-    { id: 1, name: 'Sami' },
-    { id: 2, name: 'Abdallah' },
-    { id: 3, name: 'Karmi' },
-    { id: 4, name: 'Ahmad' },
-    { id: 5, name: 'Anas' },
-  ];
+  const [teachers, setTeachers] = useState([]);
+  const [schools, setSchools] = useState([]);
 
   // useLayoutEffect(() => {
   //   console.log('navigation', navigation);
@@ -39,6 +34,33 @@ const CreateGroupScreen = ({ navigation }) => {
   const [formData, setFormData] = useState(initialFormData);
   const fields = Object.keys(formData);
 
+
+  useEffect(() => {
+    const loadusers = async () => {
+      const snapshot = await getDocs(collection(db, "users"));
+      t = [];
+      snapshot.forEach((doc) => {
+          let user = {id: doc.id, name: doc.data().name};
+          t.push(user);
+      });
+      //console.log(t);
+      t.sort((a, b) => a.name.localeCompare(b.name));
+      setTeachers(t);
+      const snapshot1 = await getDocs(collection(db, "schools"));
+      s = [];
+      snapshot1.forEach((doc) => {
+        let school = {name: doc.id};
+        s.push(school);
+      });
+      //console.log(t);
+      s.sort((a, b) => a.name.localeCompare(b.name));
+      setSchools(s);
+      console.log(schools);
+    };
+    loadusers();
+  }, []);
+
+
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -48,30 +70,30 @@ const CreateGroupScreen = ({ navigation }) => {
       alert("Please enter a group name.");
       return;
     }
-    
-    let groupExists = false;
-    const groupsSnapshot = await getDocs(collection(db, 'groups'));
-    groupsSnapshot.forEach(doc => {
-      if (doc.data().groupName === formData.groupName) {
-        groupExists = true;
-      }
-    });
-
-    if (groupExists) {
-      alert("A group with this name already exists.");
-    } else {
-      const groupData = {
-        ...formData,
-        teachers: selectedTeachers,
-      };
-
-      await setDoc(doc(db, 'groups', formData.groupName), groupData);
-      alert("Group added successfully!");
-
-      setFormData(initialFormData);
-      setSelectedTeachers([]);
+    if(!formData.class){
+      alert("Please enter a class");
+      return;
     }
-  };
+    if(!formData.school){
+      alert("Please choose a school");
+      return;
+    }
+    //console.log(selectedTeachers);
+    const groupData = {
+      groupName:formData.groupName,
+      class: formData.class,
+      school:formData.school,
+      teachers: selectedTeachers,
+    };
+
+    const groupsRef = collection(db, "groups");
+    const groupsDoc = doc(groupsRef);
+    await setDoc(groupsDoc, groupData);
+    alert("Group added successfully!");
+
+    setFormData(initialFormData);
+    setSelectedTeachers([]);
+  }
 
   return (
     <View style={styles.container}>
@@ -85,9 +107,11 @@ const CreateGroupScreen = ({ navigation }) => {
               <Picker
                 selectedValue={formData.school}
                 onValueChange={itemValue => handleChange('school', itemValue)}
-                style={styles.input}>
-                <Picker.Item label="School 1" value="school1" />
-                <Picker.Item label="School 2" value="school2" />
+                style={styles.input}
+              >
+                {schools.map((school) => (
+                  <Picker.Item label={school.name} value={school.name}/>
+                ))}
               </Picker>
             ) : (
               <TextInput
