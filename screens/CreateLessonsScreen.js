@@ -49,11 +49,11 @@ const LessonsScreen = () => {
           if (teacherData.name) {
             loadedTeachers.push({ id: doc.id, name: teacherData.name });
           } else {
-            console.log('Teacher document missing name field:', doc.id, teacherData);
+            //console.log('Teacher document missing name field:', doc.id, teacherData);
           }
         });
 
-        console.log('Fetched Teachers:', loadedTeachers);
+        //console.log('Fetched Teachers:', loadedTeachers);
 
         const formsRef = collection(db, 'forms');
         const formsSnapshot = await getDocs(formsRef);
@@ -63,11 +63,11 @@ const LessonsScreen = () => {
           if (formData.questions || formData.question) {
             loadedForms.push(formName);
           } else {
-            console.log('Form document missing questions field:', formName, formData);
+           // console.log('Form document missing questions field:', formName, formData);
           }
         });
 
-        console.log('Fetched Forms:', loadedForms);
+        //console.log('Fetched Forms:', loadedForms);
 
         setTeachers(loadedTeachers);
         setForms(loadedForms);
@@ -91,24 +91,23 @@ const LessonsScreen = () => {
       const teacherDoc = doc(teachersRef, teacherId);
       const teachersSnapshot = await getDoc(teacherDoc);
       loadedGroups=teachersSnapshot.data().groups;
-      console.log('Fetched Groups for Teacher:', loadedGroups);
+      //console.log('Fetched Groups for Teacher:', loadedGroups);
       loadedGroups.forEach(async (element) => {
         const groupDoc = doc(groupsRef, element);
         const group = await getDoc(groupDoc);
         let temp = {id:element, name:group.data().groupName};
         groupinfos.push(temp);
       });
-      console.log(groupinfos);
+      //console.log(groupinfos);
       setGroups(groupinfos);
       setFilteredGroups(groupinfos);
     } catch (error) {
-      console.error('Error fetching groups:', error);
+      //console.error('Error fetching groups:', error);
     }
   };
 
   const saveLesson = async () => {
     const newLesson = {
-      id: new Date().toISOString(),
       name: lessonName,
       group: lessonGroupId,
       teacher: lessonTeacherId,
@@ -116,12 +115,40 @@ const LessonsScreen = () => {
     };
 
     try {
-      const jsonValue = await AsyncStorage.getItem('lessons');
-      const lessons = jsonValue != null ? JSON.parse(jsonValue) : [];
-      lessons.push(newLesson);
-      await AsyncStorage.setItem('lessons', JSON.stringify(lessons));
-      Alert.alert('Lesson saved successfully!');
-      console.log(newLesson);
+      // const jsonValue = await AsyncStorage.getItem('lessons');
+      // const lessons = jsonValue != null ? JSON.parse(jsonValue) : [];
+      // lessons.push(newLesson);
+      // await AsyncStorage.setItem('lessons', JSON.stringify(lessons));
+      // Alert.alert('Lesson saved successfully!');
+      //console.log(newLesson);
+      if(lessonGroup === "" || lessonName === "" || lessonTeacher === "" || lessonForm === ""){
+        alert("you have an empty label");
+      }
+      else{
+        const lessonsRef = collection(db, "lessons");
+        const lessonDoc = doc(lessonsRef);
+        await setDoc(lessonDoc, newLesson);
+        const batch = writeBatch(db);
+        const usersRef = collection(db, "users");
+        const userDoc = doc(usersRef, newLesson.teacher);
+        let user = (await getDoc(userDoc)).data();
+        //console.log(user);
+        const formsMap = new Map(Object.entries(user.forms_to_fill));
+        formsMap.set(newLesson.group, newLesson.form);
+        //console.log(formsMap);
+        let forms = {};
+        for (const [key, value] of formsMap.entries()) {
+          forms[key] = value;
+        };
+        //console.log(forms);
+        batch.update(userDoc,{"forms_to_fill": forms});
+        await batch.commit();
+        alert("lesson created successfully");
+        setLessonGroup("");
+        setLessonTeacher("");
+        setLessonForm("");
+        setLessonName("")
+      };
     } catch (e) {
       console.error('Error saving lesson:', e);
     }
