@@ -18,7 +18,9 @@ const UpdateFormScreen = () => {
   const [filteredForms, setFilteredForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [userGroups, setUserGroups] = useState([]);
+  const [formDetails, setFormDetails] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
 
   useEffect(() => {
     const loadForms = async () => {
@@ -63,12 +65,19 @@ const UpdateFormScreen = () => {
 
       for (const docSnap of formSnapshot.docs) {
         const data = docSnap.data();
-        const groupRef = doc(db, 'groups', data.group);
-        const groupSnap = await getDoc(groupRef);
-        userGroupList.push({
-          userName: data.userName,
-          groupName: groupSnap.data().groupName
-        });
+        if (data.group) {
+          const groupRef = doc(db, 'groups', data.group);
+          const groupSnap = await getDoc(groupRef);
+          const groupData = groupSnap.data();
+
+          if (groupData && groupData.groupName) {
+            userGroupList.push({
+              userName: data.userName,
+              groupName: groupData.groupName,
+              questions: data,
+            });
+          }
+        }
       }
 
       setUserGroups(userGroupList);
@@ -76,6 +85,30 @@ const UpdateFormScreen = () => {
       setModalVisible(true);
     } catch (error) {
       console.error('Error fetching user groups:', error);
+    }
+  };
+
+  const handleUserGroupPress = async (userGroup) => {
+    try {
+      const formDocRef = doc(db, 'forms', selectedForm);
+      const formDocSnap = await getDoc(formDocRef);
+      const formQuestions = formDocSnap.data().questions;
+
+      const questionsWithAnswers = Object.keys(formQuestions).map(question => ({
+        question,
+        answer: userGroup.questions[question] || 'No answer provided',
+      }));
+
+      setFormDetails({
+        userName: userGroup.userName,
+        groupName: userGroup.groupName,
+        questionsWithAnswers,
+      });
+
+      setModalVisible(false);
+      setDetailsModalVisible(true);
+    } catch (error) {
+      console.error('Error fetching form details:', error);
     }
   };
 
@@ -88,8 +121,17 @@ const UpdateFormScreen = () => {
   );
 
   const renderUserGroup = ({ item }) => (
-    <View style={styles.userGroupContainer}>
-      <Text>{item.userName} -> {item.groupName}</Text>
+    <TouchableOpacity onPress={() => handleUserGroupPress(item)}>
+      <View style={styles.userGroupContainer}>
+        <Text>{item.userName} -> {item.groupName}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderFormDetails = ({ item }) => (
+    <View style={styles.detailContainer}>
+      <Text style={styles.detailQuestion}>{item.question}</Text>
+      <Text style={styles.detailAnswer}>{item.answer}</Text>
     </View>
   );
 
@@ -131,6 +173,29 @@ const UpdateFormScreen = () => {
           </View>
         </View>
       </Modal>
+      <Modal
+        visible={detailsModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setDetailsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Questions and Answers for {formDetails?.userName} -> {formDetails?.groupName}</Text>
+            <FlatList
+              data={formDetails?.questionsWithAnswers || []}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={renderFormDetails}
+            />
+            <TouchableOpacity
+              style={[styles.roundButton, styles.closeButton]}
+              onPress={() => setDetailsModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -162,6 +227,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     marginBottom: 10,
+  },
+  detailContainer: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginBottom: 10,
+  },
+  detailQuestion: {
+    fontWeight: 'bold',
+  },
+  detailAnswer: {
+    marginLeft: 10,
   },
   highlight: {
     backgroundColor: 'yellow',
