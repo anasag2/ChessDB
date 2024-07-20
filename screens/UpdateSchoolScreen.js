@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import db from '../firebaseConfig.js';
-import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc, getDoc, writeBatch } from 'firebase/firestore';
 
 const UpdateSchoolScreen = () => {
   const [originalSchools, setOriginalSchools] = useState([]);
@@ -25,7 +25,7 @@ const UpdateSchoolScreen = () => {
       const loadedSchools = schoolsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setOriginalSchools(loadedSchools);
       setSchools(loadedSchools);
-      console.log(loadedSchools);
+      //console.log(loadedSchools);
     } catch (e) {
       console.error('Error loading schools:', e);
     }
@@ -46,20 +46,44 @@ const UpdateSchoolScreen = () => {
         ? { ...school, supervisorName, supervisorContact }
         : school
     );
-
-    try {
-      await AsyncStorage.setItem('schools', JSON.stringify(updatedSchools));
-      alert('School updated successfully!');
-      loadSchools(); // Reload schools to reflect the update
-      setModalVisible(false);
-    } catch (e) {
-      console.error('Error updating school:', e);
+    if(supervisorContact !== "" || supervisorName !== ""){
+      try {
+      //await AsyncStorage.setItem('schools', JSON.stringify(updatedSchools));
+      //console.log(selectedSchool);
+        const batch = writeBatch(db);
+        const schoolsRef = collection(db, "schools");
+        const schoolDoc = doc(schoolsRef, selectedSchool);
+        batch.update(schoolDoc, {"supervisorContact": supervisorContact, "supervisorName": supervisorName});
+        await batch.commit();
+        loadSchools(); // Reload schools to reflect the update
+        setModalVisible(false);
+        alert('School updated successfully!');
+      } catch (e) {
+        console.error('Error updating school:', e);
+      }
+    }
+    else{
+      alert("you have an empty label");
     }
   };
 
   const handleDeleteSchool = async () => {
     const filteredSchools = originalSchools.filter((school) => school.id !== selectedSchool);
     try {
+      const schoolsRef = doc(db, 'schools', selectedSchool);
+      await deleteDoc(schoolsRef);
+      const batch = writeBatch(db);
+      const groupsRef = collection(db, "groups");
+      const groupsSnapshot = await getDocs(groupsRef);
+      groupsSnapshot.forEach((doc1) => {
+        if (selectedSchool === doc1.data().school) {
+          //console.log("entered");
+          const groupDoc = doc(groupsRef, doc1.id);
+          batch.update(groupDoc, { "school": ""});
+        }
+      });
+      await batch.commit();
+      // let user = (await getDoc(userDoc)).data();
       await AsyncStorage.setItem('schools', JSON.stringify(filteredSchools));
       alert('School deleted successfully!');
       loadSchools(); // Reload schools to reflect the deletion
