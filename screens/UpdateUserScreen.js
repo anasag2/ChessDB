@@ -270,41 +270,44 @@ const UpdateUserScreen = () => {
                 <View style={styles.row}>
                   <Text style={styles.label}>number of groups: </Text>
                   <Text style={styles.value}>{selectedUser.groups.length}</Text>
-                  <View style={styles.Show}>
-                  <Button
-        title={showList ? "Hide" : "Show"}
-        onPress={() => setShowListF(!showList)}
-      />
-      {showList && (
-        <FlatList
-          data={data}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          style={styles.list}
-        />
-      )}
-                  </View>
                   
                 </View>
+                  <View style={styles.Show}>
+                  <Button color={'red'}
+                    title={showList ? "Hide" : "Show"}
+                    onPress={() => setShowListF(!showList)}
+                    />
+                  {showList && (
+                   <FlatList
+                    data={data}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    style={styles.list}
+                    />
+                    )}
+                  </View>
+                  
+                
                 <View style={styles.row}>
                   <Text style={styles.label}>number of unfilled forms: </Text>
                   <Text style={styles.value}>{Object.keys(selectedUser.forms_to_fill).length}</Text>
+                  </View>
                   <View style={styles.Show}>
-                  <Button
-        title={showListGroup ? "Hide" : "Show"}
-        onPress={() => setShowListG(!showListGroup)}
-      />
-      {showListGroup && (
-        <FlatList
-          data={data}//change
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          style={styles.list}
-        />
-      )}
+                  <Button color={'red'}
+                  title={showListGroup ? "Hide" : "Show"}
+                  onPress={() => setShowListG(!showListGroup)}
+                  />
+                  {showListGroup && (
+                  <FlatList
+                   data={data}//change
+                    renderItem={renderItem}
+                    keyExtractor={item => item.id}
+                    style={styles.list}
+                   />
+                    )}
                   </View>
                   
-                </View>
+                
                 <View style={styles.Close}>
                   <Button title="Edit" onPress={handleEdit} style={styles.Edit}/>
                   </View>
@@ -406,7 +409,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   Show:{
-    marginLeft: 10,
+    
+    marginTop: 10,
   },
   
 });
