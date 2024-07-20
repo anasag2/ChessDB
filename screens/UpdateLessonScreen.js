@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Modal, TouchableOpacity, Alert } from 'react-native';
 import db from '../firebaseConfig.js';
-import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc, getDoc, writeBatch } from 'firebase/firestore';
 
 const UpdateLessonScreen = () => {
   const [originalLessons, setOriginalLessons] = useState([]);
@@ -13,6 +13,7 @@ const UpdateLessonScreen = () => {
   const [lessonForm, setLessonForm] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentLesson, setCurrentLesson] = useState('');
 
   useEffect(() => {
     loadLessons();
@@ -31,31 +32,43 @@ const UpdateLessonScreen = () => {
     }
   };
 
-  const handleLessonSelect = (lessonId) => {
+  const handleLessonSelect = async(lessonId) => {
     const lesson = lessons.find((lesson) => lesson.id === lessonId);
     setSelectedLesson(lesson);
+    const usersRef = collection(db, "users");
+    const userDoc = doc(usersRef, lesson.teacher);
+    let user = (await getDoc(userDoc)).data();
+    const groupsRef = collection(db, "groups");
+    const groupDoc = doc(groupsRef, lesson.group);
+    let group = (await getDoc(groupDoc)).data();
     setLessonName(lesson.name);
-    setLessonGroup(lesson.group);
-    setLessonTeacher(lesson.teacher);
+    setLessonGroup(group.groupName);
+    setLessonTeacher(user.name);
     setLessonForm(lesson.form);
     setModalVisible(true);
+    setCurrentLesson(lesson)
   };
 
   const handleUpdateLesson = async () => {
-    try {
-      const lessonRef = doc(db, 'lessons', selectedLesson.id);
-      await updateDoc(lessonRef, {
-        name: lessonName,
-        group: lessonGroup,
-        teacher: lessonTeacher,
-        form: lessonForm,
-      });
-      Alert.alert('Lesson updated successfully!');
-      loadLessons();
-      setModalVisible(false);
-    } catch (e) {
-      console.error('Error updating lesson:', e);
+    if(lessonForm === "" || lessonName === "" || lessonTeacher === "" || lessonGroup === ""){
+      alert("you have an empty label");
     }
+    else{
+      try {
+        const lessonRef = doc(db, 'lessons', selectedLesson.id);
+        await updateDoc(lessonRef, {
+          name: lessonName,
+          group: currentLesson.group,
+          teacher: currentLesson.teacher,
+          form: lessonForm,
+        });
+        Alert.alert('Lesson updated successfully!');
+        loadLessons();
+        setModalVisible(false);
+      } catch (e) {
+        console.error('Error updating lesson:', e);
+      }
+    };
   };
 
   const handleDeleteLesson = async () => {
@@ -63,6 +76,19 @@ const UpdateLessonScreen = () => {
       const lessonRef = doc(db, 'lessons', selectedLesson.id);
       await deleteDoc(lessonRef);
       Alert.alert('Lesson deleted successfully!');
+      const batch = writeBatch(db);
+      const usersRef = collection(db, "users");
+      const userDoc = doc(usersRef, currentLesson.teacher);
+      let user = (await getDoc(userDoc)).data();
+      const formsMap = new Map(Object.entries(user.forms_to_fill));
+      let forms = {};
+      for (const [key, value] of formsMap.entries()) {
+        if(key !== currentLesson.group){
+          forms[key] = value;
+        };
+      };
+      batch.update(userDoc, {"forms_to_fill": forms});
+      await batch.commit();
       loadLessons();
       setModalVisible(false);
     } catch (e) {
