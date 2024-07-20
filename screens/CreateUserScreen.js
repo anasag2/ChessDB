@@ -77,7 +77,8 @@ const CreateUserScreen = () => {
   const handleSave = async() => {
     //console.log('User Data:', JSON.stringify(formData));
     let not_exist = true;
-    const users = await getDocs(collection(db, 'users'));
+    const usersRef = collection(db, "users");
+    const users = await getDocs(usersRef);
     users.forEach((doc) => {
       if (formData["id"] == doc.id) {
         console.log(doc.id);
@@ -97,7 +98,7 @@ const CreateUserScreen = () => {
           if(passwordValidation() === false){
             alert("you have entered an invalid password\npassword should be made up of 3 numbers annd 5 letters at least");
           }else{
-            await setDoc(doc(db, 'users', formData["id"]), {
+            await setDoc(doc(usersRef, formData["id"]), {
               name : formData["name"],
               email : formData["email"],
               password : formData["password"],

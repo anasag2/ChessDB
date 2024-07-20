@@ -22,14 +22,17 @@ const FormListScreen =() => {
       //console.log(formsMap);
       const forms = [];
       // let questions = {};
+      const groupsRef = collection(db, "groups");
       for (const [key, value] of formsMap.entries()) {
         let count = 1;
-        let current_form = {name:"", data:[], group:"", userName:user.userData.name, formName:""};
+        let current_form = {name:"", data:[], group:"", userName:user.userData.name, formName:"", forms_to_fill:formsMap, id:user.userData.id, userData:user.userData};
         //console.log(`Key: ${key}, Value: ${value}`);
-        current_form.name = `${key} for group ${value}`;
-        current_form.formName = key;
-        current_form.group = value;
-        const docRef = doc(db, "forms", key);
+        const groupRef = doc(groupsRef, key);
+        const group = await getDoc(groupRef);
+        current_form.name = `${value} for group ${group.data().groupName}`;
+        current_form.formName = value;
+        current_form.group = key;
+        const docRef = doc(db, "forms", value);
         questions = (await getDoc(docRef)).data().questions;
         const questions_map = new Map(Object.entries(questions));
         //console.log(questions_map);
