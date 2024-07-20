@@ -26,7 +26,8 @@ const LoginScreen = () => {
       alert("Wrong Email or Password"); //edited by akira at 11:17am-13/06
     }
     else{
-      const userData = user.data()
+      const userData = user.data();
+      userData["id"] = user.id;
       navigation.navigate('HomePage', { userData });  
     };
   };

@@ -82,7 +82,7 @@ const AdminActionScreen = () => {
             style={styles.trainerPic}
           />
         </TouchableOpacity>
-        <Text style={styles.trainerName}> {user["userData"]["name"]} is a Admin </Text>
+        <Text style={styles.trainerName}> {user["userData"]["name"]} is an Admin </Text>
       </View>
       <View style={styles.takePhoto}>
       <Button title="Take a photo" onPress={takePhoto} />

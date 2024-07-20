@@ -16,13 +16,25 @@ const CustomHeader = ({ navigation }) => {
   };
 
   return (
+    
     <>
-      <TouchableOpacity onPress={toggleMenu} style={{ marginRight: 15 }}>
+    <View>
+    <TouchableOpacity onPress={toggleMenu} style={{ marginRight: 15 }}>
         <Image
           source={require('../assets/burger-bar.png')}
           style={{ width: 24, height: 24 }}
         />
       </TouchableOpacity>
+    </View>
+    <View style={styles.logoView}>
+    <Image
+      source={require('../assets/verbalLogo.jpeg')}
+      style={{ width: 75, height: 45, marginRight: 100, marginTop: -32}}
+    />
+    </View>
+
+
+
 
       <Modal
         animationType="slide"
@@ -71,6 +83,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     textAlign: "center"
+  },
+  logoView: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight:200,
   }
 });
 

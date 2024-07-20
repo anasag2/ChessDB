@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native'; 
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import db from '../firebaseConfig.js';
-import { collection, getDocs, setDoc, doc } from "firebase/firestore";
+import { collection, getDocs, setDoc, doc, writeBatch, getDoc } from "firebase/firestore";
 
 const FormScreen = () => {
   const route = useRoute();
@@ -34,16 +34,38 @@ const FormScreen = () => {
     }));
     //console.log('User Responses:', responses);
     const newDocRef = doc(collection(db, form.formName));
-    let infos = {userName:form.userName, group_name:form.group};
+    let infos = {userName:form.userName, group:form.group};
     responses.forEach(element => {
       infos[element.question] = element.answer;
       //console.log(infos);  
     });
     await setDoc(newDocRef, infos);
-    //console.log(forms.data());
     Alert.alert('Form Submitted');
+    let forms_to_fill = form.forms_to_fill;
+    //const formsMap = new Map(Object.entries(forms_to_fill));
+    //console.log(forms_to_fill);
+    f = {};
+    for (const [key, value] of forms_to_fill.entries()) {
+      if(key !== form.group){
+        f[key] = value;
+      };
+    };
+    //console.log(f);
+    const batch = writeBatch(db);
+    const userRef = doc(db, "users", form.id);
+    batch.update(userRef, {"forms_to_fill": f});
+    //navigation.navigate('Login');
+    await batch.commit();
+    // form.forms_to_fill.delete(form.group);
+    // console.log(form.forms_to_fill);
+    const userRef1 = doc(db, "users", form.id);
+    const user = await getDoc(userRef1);
+    //console.log(form);
+    const userData = form["userData"];
+    userData["forms_to_fill"] = f;
+    //console.log(userData.forms_to_fill);
+    navigation.navigate("HomePage", { userData });
     markAsCompleted(form.name);
-    navigation.goBack();
   };
 
   return (

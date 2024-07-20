@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View, TextInput, Text, Button, StyleSheet } from 'react-native';
+import { TouchableOpacity,ScrollView, View, TextInput, Text, Button, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import db from '../firebaseConfig.js';
 import { doc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
@@ -77,7 +77,8 @@ const CreateUserScreen = () => {
   const handleSave = async() => {
     //console.log('User Data:', JSON.stringify(formData));
     let not_exist = true;
-    const users = await getDocs(collection(db, 'users'));
+    const usersRef = collection(db, "users");
+    const users = await getDocs(usersRef);
     users.forEach((doc) => {
       if (formData["id"] == doc.id) {
         console.log(doc.id);
@@ -97,7 +98,7 @@ const CreateUserScreen = () => {
           if(passwordValidation() === false){
             alert("you have entered an invalid password\npassword should be made up of 3 numbers annd 5 letters at least");
           }else{
-            await setDoc(doc(db, 'users', formData["id"]), {
+            await setDoc(doc(usersRef, formData["id"]), {
               name : formData["name"],
               email : formData["email"],
               password : formData["password"],
@@ -179,30 +180,58 @@ const CreateUserScreen = () => {
           )}
         </View>
       ))}
-      <Button title="Save" onPress={handleSave} />
+      {/* <View style={styles.buttonContainer}>
+      <Button title="Save" onPress={handleSave} color ={colors.purple} />
+      </View> */}
+           <TouchableOpacity style={styles.buttonContainer} onPress={handleSave}>
+            <Text style={styles.buttonText} >Save</Text>
+          </TouchableOpacity>
     </ScrollView>
   );
+};
+
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F'
 };
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.lightGrey,
   },
   fieldContainer: {
     marginBottom: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.purple,
     padding: 10,
     borderRadius: 5,
+    fontSize: 16,
+    color: colors.purple,
+    backgroundColor: '#FFFFFF'
   },
   label: {
     padding: 10,
     fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.purple
   },
+  buttonContainer: {
+    alignItems: 'center',
+    marginTop: 10,
+    backgroundColor: colors.yellow,
+    borderRadius: 20,
+    padding: 10,
+  },
+  buttonText:{
+    color:'purple',
+    fontWeight: 'bold',
+  }
+
 });
 
 export default CreateUserScreen;

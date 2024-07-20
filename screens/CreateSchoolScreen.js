@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import db from '../firebaseConfig.js';
+import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 
 const SchoolsScreen = () => {
   const [schoolName, setSchoolName] = useState('');
@@ -9,18 +11,39 @@ const SchoolsScreen = () => {
 
   const saveSchool = async () => {
     const newSchool = {
-      id: new Date().toISOString(),
       schoolName,
       supervisorName,
       supervisorContact,
     };
 
     try {
-      const jsonValue = await AsyncStorage.getItem('schools');
-      const schools = jsonValue != null ? JSON.parse(jsonValue) : [];
-      schools.push(newSchool);
-      await AsyncStorage.setItem('schools', JSON.stringify(schools));
-      Alert.alert('School saved successfully!');
+      //const jsonValue = await AsyncStorage.getItem('schools');
+      //console.log(newSchool);
+      const schoolsRef = collection(db, "schools");
+      const schools = await getDocs(schoolsRef);
+      let school = undefined;
+      schools.forEach((doc) => {
+        if(newSchool.schoolName===doc.id){
+          school = doc;
+        };
+      });
+      if(school !== undefined){
+        alert("school already exist"); //edited by akira at 11:17am-13/06
+      }
+      else{
+        const schoolDoc = doc(schoolsRef, newSchool.schoolName);
+        await setDoc(schoolDoc, {
+          supervisorName: newSchool.supervisorName,
+          supervisorContact: newSchool.supervisorContact,
+        });
+        Alert.alert('School saved successfully!');
+      }
+      setSchoolName("");
+      setSupervisorContact("");
+      setSupervisorName("");
+      // const schools = jsonValue != null ? JSON.parse(jsonValue) : [];
+      // schools.push(newSchool);
+      // await AsyncStorage.setItem('schools', JSON.stringify(schools));
     } catch (e) {
       console.error('Error saving school:', e);
     }

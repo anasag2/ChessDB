@@ -32,6 +32,7 @@ const UpdateUserScreen = () => {
         };
         userList.push(user_infos);
       });
+      userList.sort((a, b) => a.name.localeCompare(b.name));
       setUsers(userList);
       setFilteredUsers(userList);
     };
