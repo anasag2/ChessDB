@@ -12,7 +12,14 @@ const UpdateUserScreen = () => {
   const [editMode, setEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [showList, setShowListF] = useState(false);
+  const [showListGroup, setShowListG] = useState(false);
+  const data = [
+    { id: '1', title: 'Item 1' },
+    { id: '2', title: 'Item 2' },
+    { id: '3', title: 'Item 3' },
+    { id: '4', title: 'Item 4' },
+  ];
   useEffect(() => {
     const loadUsers = async () => {
       const u = await getDocs(collection(db, 'users'));
@@ -61,6 +68,28 @@ const UpdateUserScreen = () => {
   };
 
   const handleEdit = () => {
+    setEditMode(true);
+    setEditedUser({ ...selectedUser });
+  };
+  
+  // const handleShowGroups = () => {
+
+  // };
+  // const handleShowForms = () => {
+
+ 
+  // };
+
+  const renderItem = ({ item }) => (
+<TouchableOpacity onPress={() => openModal(item)}>
+<View style={styles.item}>
+      <Text>{item.title}</Text>
+    </View>
+</TouchableOpacity>
+  );
+
+
+  const handleDelete = () => {
     setEditMode(true);
     setEditedUser({ ...selectedUser });
   };
@@ -241,13 +270,39 @@ const UpdateUserScreen = () => {
                 <View style={styles.row}>
                   <Text style={styles.label}>number of groups: </Text>
                   <Text style={styles.value}>{selectedUser.groups.length}</Text>
-                  <View style={styles.Show}><Button title="Show" onPress={handleEdit} style={styles.show}/></View>
-                  {/* edit the style of show  */}
+                  <View style={styles.Show}>
+                  <Button
+        title={showList ? "Hide" : "Show"}
+        onPress={() => setShowListF(!showList)}
+      />
+      {showList && (
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          style={styles.list}
+        />
+      )}
+                  </View>
+                  
                 </View>
                 <View style={styles.row}>
                   <Text style={styles.label}>number of unfilled forms: </Text>
                   <Text style={styles.value}>{Object.keys(selectedUser.forms_to_fill).length}</Text>
-                  <View style={styles.Show}><Button title="Show" onPress={handleEdit} style={styles.show}/></View>
+                  <View style={styles.Show}>
+                  <Button
+        title={showListGroup ? "Hide" : "Show"}
+        onPress={() => setShowListG(!showListGroup)}
+      />
+      {showListGroup && (
+        <FlatList
+          data={data}//change
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          style={styles.list}
+        />
+      )}
+                  </View>
                   
                 </View>
                 <View style={styles.Close}>
@@ -262,6 +317,9 @@ const UpdateUserScreen = () => {
             <View style={styles.Close}>
               <Button title="Close" onPress={() => setModalVisible(false)} />
             </View>
+            <View style={styles.Close}>
+            <Button title="Delete" onPress={handleDelete} />
+            </View>
           </View>
         </View>
       </Modal>
@@ -270,10 +328,22 @@ const UpdateUserScreen = () => {
 };
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     padding: 20,
     marginBottom:50,
+  },
+    list: {
+    marginTop: 20,
+    width: '100%',
+  },
+
+
+  item: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   input: {
     borderWidth: 1,
