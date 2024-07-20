@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native'; 
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import db from '../firebaseConfig.js';
+import MultiSelect from 'react-native-multiple-select';
 import { collection, getDocs, setDoc, doc, writeBatch, getDoc } from "firebase/firestore";
 
 const FormScreen = () => {
@@ -16,10 +17,21 @@ const FormScreen = () => {
   const navigation = useNavigation();
   //console.log(form);
   //console.log(markAsCompleted);
+  const [selectedStudent, setSelectedStudent] = useState([]);
+  const Student = [
+    { id: 1, name: 'Sami' },
+    { id: 2, name: 'Abdallah' },
+    { id: 3, name: 'Karmi' },
+    { id: 4, name: 'Ahmad' },
+    { id: 5, name: 'Anas' },
+  ];
 
 
   const handleInputChange = (id, value) => {
     setFormValues({ ...formValues, [id]: value });
+  };
+  const handleAddStudent = (id, value) => {
+    //add student 
   };
 
   const handleDateChange = (event, selectedDate, id) => {
@@ -108,9 +120,29 @@ const FormScreen = () => {
           )}
           {question.type === 'students' && (
             //to do by karmi
-            <Picker>
-            </Picker>
+            <MultiSelect
+            items={Student}
+            uniqueKey="id"
+            onSelectedItemsChange={setSelectedStudent}
+            selectedItems={selectedTeachers}
+            selectText="Pick Student"
+            searchInputPlaceholderText="Search Student..."
+            tagRemoveIconColor={colors.yellow}
+            tagBorderColor={colors.purple}
+            tagTextColor={colors.purple}
+            selectedItemTextColor={colors.yellow}
+            selectedItemIconColor={colors.yellow}
+            itemTextColor={colors.purple}
+            displayKey="name"
+            searchInputStyle={{ color: colors.purple }}
+            submitButtonColor={colors.yellow}
+            submitButtonText="Submit"
+          />
           )}
+          
+          <TouchableOpacity style={styles.buttonStyle} onPress={handleAddStudent}>
+                <Text style={styles.buttonText}>Add Student</Text>
+          </TouchableOpacity>
         </View>
       ))}
       <Button title="Submit" onPress={handleSubmit} />
