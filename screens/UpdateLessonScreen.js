@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, TextInput, FlatList, StyleSheet, Modal, TouchableOpacity, Alert } from 'react-native';
+import db from '../firebaseConfig.js';
+import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 const UpdateLessonScreen = () => {
   const [originalLessons, setOriginalLessons] = useState([]);
@@ -19,8 +20,9 @@ const UpdateLessonScreen = () => {
 
   const loadLessons = async () => {
     try {
-      const jsonValue = await AsyncStorage.getItem('lessons');
-      const loadedLessons = jsonValue != null ? JSON.parse(jsonValue) : [];
+      const lessonsRef = collection(db, 'lessons');
+      const lessonsSnapshot = await getDocs(lessonsRef);
+      const loadedLessons = lessonsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setOriginalLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
       setLessons(loadedLessons.sort((a, b) => a.name.localeCompare(b.name)));
     } catch (e) {
@@ -39,15 +41,15 @@ const UpdateLessonScreen = () => {
   };
 
   const handleUpdateLesson = async () => {
-    const updatedLessons = originalLessons.map((lesson) =>
-      lesson.id === selectedLesson.id
-        ? { ...lesson, name: lessonName, group: lessonGroup, teacher: lessonTeacher, form: lessonForm }
-        : lesson
-    );
-
     try {
-      await AsyncStorage.setItem('lessons', JSON.stringify(updatedLessons));
-      alert('Lesson updated successfully!');
+      const lessonRef = doc(db, 'lessons', selectedLesson.id);
+      await updateDoc(lessonRef, {
+        name: lessonName,
+        group: lessonGroup,
+        teacher: lessonTeacher,
+        form: lessonForm,
+      });
+      Alert.alert('Lesson updated successfully!');
       loadLessons();
       setModalVisible(false);
     } catch (e) {
@@ -56,11 +58,10 @@ const UpdateLessonScreen = () => {
   };
 
   const handleDeleteLesson = async () => {
-    const filteredLessons = originalLessons.filter((lesson) => lesson.id !== selectedLesson.id);
-
     try {
-      await AsyncStorage.setItem('lessons', JSON.stringify(filteredLessons));
-      alert('Lesson deleted successfully!');
+      const lessonRef = doc(db, 'lessons', selectedLesson.id);
+      await deleteDoc(lessonRef);
+      Alert.alert('Lesson deleted successfully!');
       loadLessons();
       setModalVisible(false);
     } catch (e) {
@@ -161,16 +162,22 @@ const UpdateLessonScreen = () => {
   );
 };
 
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F',
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.lightGrey,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.purple,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -180,6 +187,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 20,
     marginBottom: 10,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   list: {
     marginBottom: 20,
@@ -193,7 +202,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   highlight: {
-    backgroundColor: 'yellow',
+    backgroundColor: colors.yellow,
   },
   modalContainer: {
     flex: 1,
@@ -214,10 +223,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   searchButton: {
-    backgroundColor: '#2196F3', // Blue color 
+    backgroundColor: colors.purple, // Purple color
   },
   updateButton: {
-    backgroundColor: '#2196F3', // Blue color
+    backgroundColor: colors.purple, // Purple color
   },
   deleteButton: {
     backgroundColor: 'red', // Red color for delete button

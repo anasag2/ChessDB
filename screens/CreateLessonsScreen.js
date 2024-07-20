@@ -121,6 +121,7 @@ const LessonsScreen = () => {
       lessons.push(newLesson);
       await AsyncStorage.setItem('lessons', JSON.stringify(lessons));
       Alert.alert('Lesson saved successfully!');
+      console.log(newLesson);
     } catch (e) {
       console.error('Error saving lesson:', e);
     }
