@@ -1,7 +1,7 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
 import { View, TextInput, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import db from '../firebaseConfig.js';
-import { doc, setDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, setDoc, collection, getDocs, addDoc, getDoc, writeBatch } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
 import MultiSelect from 'react-native-multiple-select';
 
@@ -55,7 +55,7 @@ const CreateGroupScreen = ({ navigation }) => {
       //console.log(t);
       s.sort((a, b) => a.name.localeCompare(b.name));
       setSchools(s);
-      console.log(schools);
+      //console.log(schools);
     };
     loadusers();
   }, []);
@@ -85,14 +85,29 @@ const CreateGroupScreen = ({ navigation }) => {
       school:formData.school,
       teachers: selectedTeachers,
     };
-
     const groupsRef = collection(db, "groups");
-    const groupsDoc = doc(groupsRef);
-    await setDoc(groupsDoc, groupData);
+    const docRef = await addDoc(groupsRef, groupData);
+    const groupId = docRef.id;
+    const usersRef = collection(db, "users");
+    selectedTeachers.forEach(async(teacher) => {
+      const userDoc = doc(usersRef, teacher);
+      let user = (await getDoc(userDoc)).data();
+      let x = user.groups;
+      let y =[];
+      x.forEach(group=> {
+        y.push(group);
+      });
+      const batch = writeBatch(db);
+      y.push(groupId);
+      //console.log(groupId);
+      //console.log(y);
+      batch.update(userDoc, {"groups": y});
+      await batch.commit();
+    });
     alert("Group added successfully!");
-
     setFormData(initialFormData);
     setSelectedTeachers([]);
+    // await batch.commit();
   }
 
   return (
