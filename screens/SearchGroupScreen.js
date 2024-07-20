@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal, ScrollView, CheckBox } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  Button, 
+  FlatList, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Modal, 
+  ScrollView, 
+  Pressable 
+} from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import db from '../firebaseConfig.js';
 import { doc, deleteDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
-import { Picker } from '@react-native-picker/picker';
 
 const SearchGroupScreen = () => {
   const [searchText, setSearchText] = useState('');
@@ -14,64 +25,96 @@ const SearchGroupScreen = () => {
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    const fetchGroups = async () => {
-      const snapshot = await getDocs(collection(db, 'groups'));
-      const loadedGroups = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setGroups(loadedGroups);
+    const fetchData = async () => {
+      try {
+        const groupsSnapshot = await getDocs(collection(db, 'groups'));
+        const loadedGroups = groupsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setGroups(loadedGroups);
+
+        const schoolsSnapshot = await getDocs(collection(db, 'schools'));
+        const loadedSchools = schoolsSnapshot.docs.map(doc => ({ name: doc.id }));
+        setSchools(loadedSchools);
+
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const loadedUsers = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setUsers(loadedUsers);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
 
-    const fetchSchools = async () => {
-      const snapshot = await getDocs(collection(db, 'schools'));
-      const loadedSchools = snapshot.docs.map(doc => ({ name: doc.id }));
-      setSchools(loadedSchools);
-    };
-
-    const fetchUsers = async () => {
-      const snapshot = await getDocs(collection(db, 'users'));
-      const loadedUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setUsers(loadedUsers);
-    };
-
-    fetchGroups();
-    fetchSchools();
-    fetchUsers();
+    fetchData();
   }, []);
 
   const handleSearch = () => {
-    const filteredGroups = groups.filter(group => group.groupName.toLowerCase().includes(searchText.toLowerCase()));
+    const filteredGroups = groups.filter(group => 
+      group.groupName.toLowerCase().includes(searchText.toLowerCase())
+    );
     setGroups(filteredGroups);
   };
 
   const handleDeleteGroup = async () => {
-    await deleteDoc(doc(db, 'groups', selectedGroup.id));
-    setGroups(groups.filter(group => group.id !== selectedGroup.id));
-    setModalVisible(false);
-    alert('Group deleted successfully!');
+    if (selectedGroup) {
+      await deleteDoc(doc(db, 'groups', selectedGroup.id));
+      setGroups(groups.filter(group => group.id !== selectedGroup.id));
+      setModalVisible(false);
+      setSelectedGroup(null);
+      alert('Group deleted successfully!');
+    }
   };
 
   const handleSaveChanges = async () => {
-    const groupRef = doc(db, 'groups', selectedGroup.id);
-    await updateDoc(groupRef, selectedGroup);
-    setModalVisible(false);
-    alert('Group updated successfully!');
+    if (selectedGroup) {
+      try {
+        const groupRef = doc(db, 'groups', selectedGroup.id);
+        await updateDoc(groupRef, {
+          groupName: selectedGroup.groupName,
+          class: selectedGroup.class,
+          school: selectedGroup.school,
+          teachers: selectedGroup.teachers
+        });
+        
+        // Update the groups state with the new data
+        setGroups(prevGroups => prevGroups.map(group => 
+          group.id === selectedGroup.id ? selectedGroup : group
+        ));
+        
+        setModalVisible(false);
+        setEditMode(false);
+        alert('Group updated successfully!');
+      } catch (error) {
+        console.error("Error updating group:", error);
+        alert('Failed to update group. Please try again.');
+      }
+    }
   };
-
+  
   const handleChange = (field, value) => {
-    setSelectedGroup({ ...selectedGroup, [field]: value });
+    setSelectedGroup(prevGroup => ({ ...prevGroup, [field]: value }));
   };
-
+  
   const handleUserToggle = (userId) => {
-    const updatedUsers = selectedGroup.users?.includes(userId)
-      ? selectedGroup.users.filter(id => id !== userId)
-      : [...(selectedGroup.users || []), userId];
-    setSelectedGroup({ ...selectedGroup, users: updatedUsers });
+    setSelectedGroup(prevGroup => {
+      const updatedTeachers = prevGroup.teachers?.includes(userId)
+        ? prevGroup.teachers.filter(id => id !== userId)
+        : [...(prevGroup.teachers || []), userId];
+      return { ...prevGroup, teachers: updatedTeachers };
+    });
+  };
+  const handleEditGroup = (group) => {
+    setSelectedGroup({
+      ...group,
+      teachers: group.teachers || [],
+      school: group.school || '',
+      class: group.class || '',
+    });
+    setEditMode(true);
   };
 
   const renderGroup = ({ item }) => (
     <TouchableOpacity
-      key={item.id}
       onPress={() => {
-        setSelectedGroup({ ...item, users: item.users || [] });
+        setSelectedGroup(item);
         setModalVisible(true);
       }}
     >
@@ -80,11 +123,14 @@ const SearchGroupScreen = () => {
   );
 
   const renderUser = ({ item }) => (
-    <View key={item.id} style={styles.checkboxContainer}>
-      <Text>{item.name}</Text>
-      <CheckBox
-        value={selectedGroup?.users?.includes(item.id)}
-        onValueChange={() => handleUserToggle(item.id)}
+    <View style={styles.checkboxContainer}>
+      <Text>{item.name || 'Unknown User'}</Text>
+      <Pressable
+        style={[
+          styles.checkbox,
+          selectedGroup?.teachers?.includes(item.id) && styles.checkboxChecked
+        ]}
+        onPress={() => handleUserToggle(item.id)}
       />
     </View>
   );
@@ -104,14 +150,14 @@ const SearchGroupScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={renderGroup}
       />
-      {selectedGroup && (
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <ScrollView contentContainerStyle={styles.modalView}>
+    {selectedGroup && (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+          <View style={styles.modalView}>
             {editMode ? (
               <>
                 <TextInput
@@ -122,45 +168,59 @@ const SearchGroupScreen = () => {
                 />
                 <TextInput
                   style={styles.input}
-                  value={selectedGroup.className}
-                  onChangeText={(text) => handleChange('className', text)}
+                  value={selectedGroup.class}
+                  onChangeText={(text) => handleChange('class', text)}
                   placeholder="Class Name"
                 />
                 <Picker
-                  selectedValue={selectedGroup.schoolId}
-                  onValueChange={(itemValue) => handleChange('schoolId', itemValue)}
+                  selectedValue={selectedGroup.school}
+                  onValueChange={(itemValue) => handleChange('school', itemValue)}
                   style={styles.input}
                 >
+                  <Picker.Item label="Select a school" value="" />
                   {schools.map(school => (
                     <Picker.Item label={school.name} value={school.name} key={school.name} />
                   ))}
                 </Picker>
                 <Text style={styles.label}>Users:</Text>
-                {users.map(renderUser)}
-                <Button title="Save Changes" onPress={handleSaveChanges} color={colors.yellow} />
-              </>
-            ) : (
+                  {users.map(user => (
+                    <View key={user.id} style={styles.checkboxContainer}>
+                      <Text>{user.name || 'Unknown User'}</Text>
+                      <Pressable
+                        style={[
+                          styles.checkbox,
+                          selectedGroup.teachers?.includes(user.id) && styles.checkboxChecked
+                        ]}
+                        onPress={() => handleUserToggle(user.id)}
+                      />
+                    </View>
+                  ))}
+                  <Button title="Save Changes" onPress={handleSaveChanges} color={colors.yellow} />
+                </>
+              ) : (
               <>
                 <Text style={styles.modalText}>Group Name: {selectedGroup.groupName}</Text>
-                <Text style={styles.modalText}>Class Name: {selectedGroup.className}</Text>
-                <Text style={styles.modalText}>
-                  School: {schools.find(school => school.name === selectedGroup.schoolId)?.name || 'Unknown'}
-                </Text>
+                <Text style={styles.modalText}>Class Name: {selectedGroup.class || 'N/A'}</Text>
+                <Text style={styles.modalText}>School: {selectedGroup.school || 'Unknown'}</Text>
                 <Text style={styles.modalText}>Users:</Text>
-                {selectedGroup.users.map(userId => {
-                  const user = users.find(u => u.id === userId);
-                  return <Text key={userId}>{user ? user.name : 'Unknown user'}</Text>;
-                })}
-                <Button title="Edit" onPress={() => setEditMode(true)} color={colors.purple} />
-                <Button title="Delete" onPress={handleDeleteGroup} color="#ff0000" />
-              </>
-            )}
-            <Button title="Close" onPress={() => setModalVisible(false)} color={colors.purple} />
-          </ScrollView>
-        </Modal>
-      )}
-    </View>
-  );
+                {selectedGroup.teachers?.map(userId => {
+                const user = users.find(u => u.id === userId);
+                return <Text key={userId}>{user ? user.name : 'Unknown user'}</Text>;
+              })}
+              <Button title="Edit" onPress={() => handleEditGroup(selectedGroup)} color={colors.purple} />
+              <Button title="Delete" onPress={handleDeleteGroup} color="#ff0000" />
+            </>
+          )}
+          <Button title="Close" onPress={() => {
+            setModalVisible(false);
+            setEditMode(false);
+          }} color={colors.purple} />
+        </View>
+      </Modal>
+    )}
+  </View>
+);
+  
 };
 
 const colors = {
@@ -192,7 +252,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.purple,
   },
   modalView: {
-    flexGrow: 1,
+    flex: 1,
     margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
@@ -205,7 +265,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
+    maxHeight: '80%',  // Limit the height of the modal
+    overflow: 'scroll' // Make the content scrollable if it exceeds the height
   },
   modalText: {
     marginBottom: 15,
@@ -216,6 +278,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: colors.purple,
+    borderRadius: 4,
+    marginLeft: 8,
+  },
+  checkboxChecked: {
+    backgroundColor: colors.purple,
   },
   label: {
     fontSize: 16,
