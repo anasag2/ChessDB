@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View, TextInput, Text, Button, StyleSheet } from 'react-native';
+import { TouchableOpacity,ScrollView, View, TextInput, Text, Button, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import db from '../firebaseConfig.js';
 import { doc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
@@ -180,9 +180,12 @@ const CreateUserScreen = () => {
           )}
         </View>
       ))}
-      <View style={styles.buttonContainer}>
+      {/* <View style={styles.buttonContainer}>
       <Button title="Save" onPress={handleSave} color ={colors.purple} />
-      </View>
+      </View> */}
+           <TouchableOpacity style={styles.buttonContainer} onPress={handleSave}>
+            <Text style={styles.buttonText} >Save</Text>
+          </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -218,15 +221,17 @@ const styles = StyleSheet.create({
     color: colors.purple
   },
   buttonContainer: {
+    alignItems: 'center',
     marginTop: 10,
     backgroundColor: colors.yellow,
     borderRadius: 20,
     padding: 10,
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold'
+  buttonText:{
+    color:'purple',
+    fontWeight: 'bold',
   }
+
 });
 
 export default CreateUserScreen;

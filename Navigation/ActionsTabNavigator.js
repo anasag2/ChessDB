@@ -5,6 +5,7 @@ import FormGenerator from '../screens/FormGenerator';
 import CreateUserScreen from '../screens/CreateUserScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SearchGroupScreen from '../screens/SearchGroupScreen';
+import FormUpdateScreen from '../screens/FormUpdateScreen';
 import ReadUserScreen from '../screens/ReadUserScreen';
 import UpdateUserScreen from '../screens/UpdateUserScreen';
 import CreateGroupScreen from '../screens/CreateGroupsScreen';
@@ -38,7 +39,7 @@ const ActionsTabNavigator = () => {
 
   const UpdateActionType = () => {
     if (user["actionType"] === 'Form') {
-      return <FormGenerator />;
+      return <FormUpdateScreen />;
     } else if (user["actionType"] === 'User') {
       return <UpdateUserScreen />;
     } else if (user["actionType"] === 'Group') {
