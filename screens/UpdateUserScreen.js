@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal ,Platform} from 'react-native';
+import {Alert,  View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import db from '../firebaseConfig.js';
-import { getDoc, writeBatch, doc, collection, getDocs } from 'firebase/firestore';
+import { getDoc, writeBatch, doc, collection, getDocs, deleteDoc } from 'firebase/firestore';
 
 const UpdateUserScreen = () => {
   const [users, setUsers] = useState([]);
@@ -14,38 +14,36 @@ const UpdateUserScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [showList, setShowListF] = useState(false);
   const [showListGroup, setShowListG] = useState(false);
-  const data = [
-    { id: '1', title: 'Item 1' },
-    { id: '2', title: 'Item 2' },
-    { id: '3', title: 'Item 3' },
-    { id: '4', title: 'Item 4' },
-  ];
-  useEffect(() => {
-    const loadUsers = async () => {
-      const u = await getDocs(collection(db, 'users'));
-      const userList = [];
-      u.forEach((doc) => {
-        let user_infos = {
-          id: doc.id,
-          name: doc.data().name,
-          place_of_residence: doc.data().place_of_residence,
-          role: doc.data().role,
-          gender: doc.data().gender,
-          email: doc.data().email,
-          password: doc.data().password,
-          phone_number: doc.data().phone_number,
-          groups: doc.data().groups,
-          forms_to_fill: doc.data().forms_to_fill,
-        };
-        userList.push(user_infos);
-      });
-      userList.sort((a, b) => a.name.localeCompare(b.name));
-      setUsers(userList);
-      setFilteredUsers(userList);
-    };
+  const [groups, setGroups] = useState([]);
+  const [forms, setForms] = useState([]);
 
+  useEffect(() => {
     loadUsers();
   }, []);
+
+  const loadUsers = async () => {
+    const u = await getDocs(collection(db, 'users'));
+    const userList = [];
+    u.forEach((doc) => {
+      let user_infos = {
+        id: doc.id,
+        name: doc.data().name,
+        place_of_residence: doc.data().place_of_residence,
+        role: doc.data().role,
+        gender: doc.data().gender,
+        email: doc.data().email,
+        password: doc.data().password,
+        phone_number: doc.data().phone_number,
+        groups: doc.data().groups,
+        forms_to_fill: doc.data().forms_to_fill,
+      };
+      userList.push(user_infos);
+    });
+    userList.sort((a, b) => a.name.localeCompare(b.name));
+    setUsers(userList);
+    setFilteredUsers(userList);
+  };
+
 
   const handleSearch = () => {
     const filtered = users.filter(user => user.name.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -71,73 +69,68 @@ const UpdateUserScreen = () => {
     setEditMode(true);
     setEditedUser({ ...selectedUser });
   };
-  
 
   const renderItem = ({ item }) => (
-<TouchableOpacity onPress={() => openModal(item)}>
-<View style={styles.item}>
-      <Text>{item.title}</Text>
-    </View>
-</TouchableOpacity>
+    <TouchableOpacity onPress={() => openModal(item)}>
+      <View style={styles.item}>
+        <Text>{item.name}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
-
-  const handleDelete = () => {
-    setEditMode(true);
-    setEditedUser({ ...selectedUser });
+  const handleDelete = async() => {
+    // setEditMode(true);
+//    setEditedUser({ ...selectedUser });
+    //console.log(selectedUser);
+    const lessonRef = doc(db, 'users', selectedUser.id);
+    await deleteDoc(lessonRef);
+    Alert.alert('user deleted successfully!');
+    setModalVisible(false);
+    loadUsers();
   };
-  
+
   const emailValidation = () => {
     const gmailRegex = /^[a-zA-Z0-9._%+-]+(@gmail\.com)$/;
     return gmailRegex.test(editedUser.email);
   };
 
   const passwordValidation = () => {
-    p = editedUser.password;
-    numCounter = 0;
-    if(p.length === 0 || p.length < 8){
+    const p = editedUser.password;
+    let numCounter = 0;
+    if (p.length === 0 || p.length < 8) {
       return false;
     }
     for (let char of p) {
       let charCode = char.charCodeAt(0);
-      if(charCode >= 48 && charCode <= 57){
+      if (charCode >= 48 && charCode <= 57) {
         numCounter += 1;
       }
     }
-    if(numCounter < 3){
-       return false;
-    }
-    return true;
+    return numCounter >= 3;
   };
 
   const handleSave = async () => {
-    if(emailValidation() === false){
-      alert("unsupported email");
-    }else{
-      if(passwordValidation() === false){
-        alert("you have entered an invalid password\npassword should be made up of 3 numbers annd 5 letters at least");
-      }else{
-        const updatedUsers = users.map(user => (user.id === editedUser.id ? editedUser : user));
-        setUsers(updatedUsers);
-        setFilteredUsers(updatedUsers);
-        setSelectedUser(editedUser);
-        const batch = writeBatch(db);
-        const userRef = doc(db, "users", editedUser.id);
-        const userSnap = await getDoc(userRef);
-        const userData = userSnap.data();
-        for (let [key, value] of Object.entries(editedUser)) {
-          if(key !== 'id'){
-            if (value !== userData[key]){
-              //console.log([key]);
-              batch.update(userRef, {[key]: value});
-            }
-          }
-        };
-        setEditMode(false);
-        setModalVisible(false); // Close modal after saving
-        //console.log('User Data:', JSON.stringify(editedUser));
-        await batch.commit();
+    if (!emailValidation()) {
+      alert("Unsupported email");
+    } else if (!passwordValidation()) {
+      alert("You have entered an invalid password\nPassword should be made up of at least 3 numbers and 5 letters");
+    } else {
+      const updatedUsers = users.map(user => (user.id === editedUser.id ? editedUser : user));
+      setUsers(updatedUsers);
+      setFilteredUsers(updatedUsers);
+      setSelectedUser(editedUser);
+      const batch = writeBatch(db);
+      const userRef = doc(db, "users", editedUser.id);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data();
+      for (let [key, value] of Object.entries(editedUser)) {
+        if (key !== 'id' && value !== userData[key]) {
+          batch.update(userRef, { [key]: value });
+        }
       }
+      setEditMode(false);
+      setModalVisible(false); // Close modal after saving
+      await batch.commit();
     }
   };
 
@@ -151,6 +144,44 @@ const UpdateUserScreen = () => {
     setModalVisible(true);
     setEditMode(false);
   };
+
+  const showGroups = async () => {
+    if (selectedUser) {
+      const userRef = doc(db, "users", selectedUser.id);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data();
+      const groupDataPromises = userData.groups.map(async (groupId) => {
+        const groupRef = doc(db, "groups", groupId);
+        const groupSnap = await getDoc(groupRef);
+        return { id: groupId, name: groupSnap.data().groupName };
+      });
+      const groupData = await Promise.all(groupDataPromises);
+      setGroups(groupData);
+      setShowListF(!showList);
+    }
+  };
+
+  const showForms = async () => {
+    if (selectedUser) {
+      const userRef = doc(db, "users", selectedUser.id);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data();
+      const forms_to_fill = userData.forms_to_fill;
+      const formsMap = new Map(Object.entries(forms_to_fill));
+      let count = 1;
+      let z = [];
+      const groupsRef = collection(db, "groups");
+      for (const [key, value] of formsMap.entries()) {
+        const groupRef = doc(groupsRef, key);
+        const group = await getDoc(groupRef);
+        z.push({ id: count++, name: `${value} for group ${group.data().groupName}` });
+      }
+      setForms(z);
+      setShowListG(!showListGroup); // Toggle visibility
+    }
+  };
+  
+
 
   const renderUser = ({ item }) => (
     <TouchableOpacity onPress={() => openModal(item)}>
@@ -196,13 +227,13 @@ const UpdateUserScreen = () => {
                     style={styles.input}
                     value={editedUser.place_of_residence}
                     onChangeText={(text) => handleInputChange('place_of_residence', text)}
-                    placeholder="place of residence"
+                    placeholder="Place of Residence"
                   />
                   <TextInput
                     style={styles.input}
                     value={editedUser.phone_number}
                     onChangeText={(text) => handleInputChange('phone_number', text)}
-                    placeholder="phone number"
+                    placeholder="Phone Number"
                     keyboardType='number-pad'
                   />
                   <TextInput
@@ -218,114 +249,104 @@ const UpdateUserScreen = () => {
                     placeholder="Password"
                     secureTextEntry
                   />
-                   {Platform.OS === 'ios' ? (
-              <TouchableOpacity
-                style={styles.pickerButton}
-                onPress={() => showPicker(index)}
-              >
-                <Text style={styles.pickerButtonText}>{editedUser.role}</Text>
-              </TouchableOpacity>
-            ) : (
-              <Picker
-                selectedValue={editedUser.role}
-                style={styles.picker}
-                onValueChange={(itemValue) =>
-                  handleInputChange('role', itemValue)
-                }
-              >
-                <Picker.Item label="Admin" value="admin" />
-                      <Picker.Item label="Teacher" value="teacher" />
-              </Picker>
-            )}
-                  {/* <View style={styles.pickerContainer}>
+                  {Platform.OS === 'ios' ? (
+                    <TouchableOpacity
+                      style={styles.pickerButton}
+                      onPress={() => showPicker(index)}
+                    >
+                      <Text style={styles.pickerButtonText}>{editedUser.role}</Text>
+                    </TouchableOpacity>
+                  ) : (
                     <Picker
                       selectedValue={editedUser.role}
-                      onValueChange={(itemValue) => handleInputChange('role', itemValue)}
                       style={styles.picker}
+                      onValueChange={(itemValue) => handleInputChange('role', itemValue)}
                     >
                       <Picker.Item label="Admin" value="admin" />
                       <Picker.Item label="Teacher" value="teacher" />
                     </Picker>
-                  </View> */}
+                  )}
                   <Button title="Save" onPress={handleSave} />
                 </>
               ) : (
                 <>
-                <View style={styles.row}>
-                  <Text style={styles.label}>Name: </Text>
-                  <Text style={styles.value}>{selectedUser.name}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>gender: </Text>
-                  <Text style={styles.value}>{selectedUser.gender}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>place of residence: </Text>
-                  <Text style={styles.value}>{selectedUser.place_of_residence}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>phone number: </Text>
-                  <Text style={styles.value}>{selectedUser.phone_number}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>Email: </Text>
-                  <Text style={styles.value}>{selectedUser.email}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>Password: </Text>
-                  <Text style={styles.value}>{selectedUser.password}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>Role: </Text>
-                  <Text style={styles.value}>{selectedUser.role}</Text>
-                </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>number of groups: </Text>
-                  <Text style={styles.value}>{selectedUser.groups.length}</Text>
-                  
-                </View>
-                  <View style={styles.Show}>
-                  <Button color={'red'}
-                    title={showList ? "Hide" : "Show"}
-                    onPress={() => setShowListF(!showList)}
-                    />
-                  {showList && (
-                   <FlatList
-                    data={data}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    nestedScrollEnabled={true}
-                    style={styles.list}
-                    />
-                    )}
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Name: </Text>
+                    <Text style={styles.value}>{selectedUser.name}</Text>
                   </View>
-                  
-                
-                <View style={styles.row}>
-                  <Text style={styles.label}>number of unfilled forms: </Text>
-                  <Text style={styles.value}>{Object.keys(selectedUser.forms_to_fill).length}</Text>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Gender: </Text>
+                    <Text style={styles.value}>{selectedUser.gender}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Place of Residence: </Text>
+                    <Text style={styles.value}>{selectedUser.place_of_residence}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Phone Number: </Text>
+                    <Text style={styles.value}>{selectedUser.phone_number}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Email: </Text>
+                    <Text style={styles.value}>{selectedUser.email}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Password: </Text>
+                    <Text style={styles.value}>{selectedUser.password}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Role: </Text>
+                    <Text style={styles.value}>{selectedUser.role}</Text>
+                  </View>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Number of Groups: </Text>
+                    <Text style={styles.value}>{selectedUser.groups.length}</Text>
                   </View>
                   <View style={styles.Show}>
-                  <Button color={'red'}
-                  title={showListGroup ? "Hide" : "Show"}
-                  onPress={() => setShowListG(!showListGroup)}
-                  />
-                  {showListGroup && (
-                  <FlatList
-                   data={data}//change
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id}
-                    nestedScrollEnabled={true}
-                    style={styles.list}
-                   />
+                    <Button color={'red'}
+                      title={showList ? "Hide" : "Show"}
+                      onPress={showGroups}
+                    />
+                    {showList && (
+                      <FlatList
+                        data={groups}
+                        renderItem={({ item }) => (
+                          <View style={styles.item}>
+                            <Text>{item.name}</Text>
+                          </View>
+                        )}
+                        keyExtractor={item => item.id}
+                        nestedScrollEnabled={true}
+                        style={styles.list}
+                      />
                     )}
                   </View>
-                  
-                
-                <View style={styles.Close}>
-                  <Button title="Edit" onPress={handleEdit} style={styles.Edit}/>
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Number of Unfilled Forms: </Text>
+                    <Text style={styles.value}>{Object.keys(selectedUser.forms_to_fill).length}</Text>
                   </View>
-                  
+                  <View style={styles.Show}>
+                    <Button color={'red'}
+                      title={showListGroup ? "Hide" : "Show"}
+                      onPress={showForms}
+                    />
+                    {showListGroup && (
+                      <FlatList
+                        data={forms}
+                        renderItem={({ item }) => (
+                          <View style={styles.item}>
+                            <Text>{item.name}</Text>
+                          </View>
+                        )}
+                        keyExtractor={item => item.id}
+                        nestedScrollEnabled={true}
+                        style={styles.list}
+                      />
+                    )}
+                  </View>
+                  <View style={styles.Close}>
+                    <Button title="Edit" onPress={handleEdit} style={styles.Edit} />
+                  </View>
                 </>
               )
             ) : (
@@ -335,7 +356,7 @@ const UpdateUserScreen = () => {
               <Button title="Close" onPress={() => setModalVisible(false)} />
             </View>
             <View style={styles.Close}>
-            <Button title="Delete" onPress={handleDelete} />
+              <Button title="Delete" onPress={handleDelete} />
             </View>
           </View>
         </View>
@@ -345,18 +366,15 @@ const UpdateUserScreen = () => {
 };
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     padding: 20,
-    marginBottom:50,
+    marginBottom: 50,
   },
-    list: {
+  list: {
     marginTop: 20,
     width: '100%',
   },
-
-
   item: {
     padding: 20,
     borderBottomWidth: 1,
@@ -368,9 +386,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
-  },
-  list: {
-    marginBottom: 20,
   },
   userContainer: {
     padding: 10,
@@ -412,21 +427,18 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    alignItems: 'center', 
-    marginTop: 10,
-    
-  },
-  Close:{
+    alignItems: 'center',
     marginTop: 10,
   },
-  Edit:{
+  Close: {
     marginTop: 10,
   },
-  Show:{
-    
+  Edit: {
     marginTop: 10,
   },
-  
+  Show: {
+    marginTop: 10,
+  },
 });
 
 export default UpdateUserScreen;
