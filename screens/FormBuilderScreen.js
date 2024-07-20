@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native'; 
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView, TouchableOpacity } from 'react-native-safe-area-context';
 import db from '../firebaseConfig.js';
 import MultiSelect from 'react-native-multiple-select';
 import { collection, getDocs, setDoc, doc, writeBatch, getDoc } from "firebase/firestore";
@@ -63,21 +63,21 @@ const FormScreen = () => {
       };
     };
     //console.log(f);
-    const batch = writeBatch(db);
-    const userRef = doc(db, "users", form.id);
-    batch.update(userRef, {"forms_to_fill": f});
+    //const batch = writeBatch(db);
+    //const userRef = doc(db, "users", form.id);
+    //batch.update(userRef, {"forms_to_fill": f});
     //navigation.navigate('Login');
-    await batch.commit();
+    //await batch.commit();
     // form.forms_to_fill.delete(form.group);
     // console.log(form.forms_to_fill);
-    const userRef1 = doc(db, "users", form.id);
-    const user = await getDoc(userRef1);
+    // const userRef1 = doc(db, "users", form.id);
+    // const user = await getDoc(userRef1);
     //console.log(form);
     const userData = form["userData"];
-    userData["forms_to_fill"] = f;
-    //console.log(userData.forms_to_fill);
+    // userData["forms_to_fill"] = f;
+    // //console.log(userData.forms_to_fill);
     navigation.navigate("HomePage", { userData });
-    markAsCompleted(form.name);
+    //markAsCompleted(form.name);
   };
 
   return (
@@ -121,28 +121,28 @@ const FormScreen = () => {
           {question.type === 'students' && (
             //to do by karmi
             <MultiSelect
-            items={Student}
-            uniqueKey="id"
-            onSelectedItemsChange={setSelectedStudent}
-            selectedItems={selectedTeachers}
-            selectText="Pick Student"
-            searchInputPlaceholderText="Search Student..."
-            tagRemoveIconColor={colors.yellow}
-            tagBorderColor={colors.purple}
-            tagTextColor={colors.purple}
-            selectedItemTextColor={colors.yellow}
-            selectedItemIconColor={colors.yellow}
-            itemTextColor={colors.purple}
-            displayKey="name"
-            searchInputStyle={{ color: colors.purple }}
-            submitButtonColor={colors.yellow}
-            submitButtonText="Submit"
+            // items={Student}
+            // uniqueKey="id"
+            // onSelectedItemsChange={setSelectedStudent}
+            // selectedItems={selectedTeachers}
+            // selectText="Pick Student"
+            // searchInputPlaceholderText="Search Student..."
+            // tagRemoveIconColor={colors.yellow}
+            // tagBorderColor={colors.purple}
+            // tagTextColor={colors.purple}
+            // selectedItemTextColor={colors.yellow}
+            // selectedItemIconColor={colors.yellow}
+            // itemTextColor={colors.purple}
+            // displayKey="name"
+            // searchInputStyle={{ color: colors.purple }}
+            // submitButtonColor={colors.yellow}
+            // submitButtonText="Submit"
           />
           )}
           
-          <TouchableOpacity style={styles.buttonStyle} onPress={handleAddStudent}>
+          {/* <TouchableOpacity style={styles.buttonStyle} onPress={handleAddStudent}>
                 <Text style={styles.buttonText}>Add Student</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       ))}
       <Button title="Submit" onPress={handleSubmit} />
