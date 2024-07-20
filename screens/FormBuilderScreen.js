@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
@@ -140,11 +140,13 @@ const FormScreen = () => {
           />
           )}
           
+        </View>
+      ))}
+      <View>
           <TouchableOpacity style={styles.buttonStyle} onPress={handleAddStudent}>
                 <Text style={styles.buttonText}>Add Student</Text>
           </TouchableOpacity>
-        </View>
-      ))}
+          </View>
       <Button title="Submit" onPress={handleSubmit} />
     </ScrollView>
     </SafeAreaView>

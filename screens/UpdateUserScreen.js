@@ -230,7 +230,7 @@ const UpdateUserScreen = () => {
                 selectedValue={editedUser.role}
                 style={styles.picker}
                 onValueChange={(itemValue) =>
-                  handleFieldChange(index, 'type', itemValue)
+                  handleInputChange('role', itemValue)
                 }
               >
                 <Picker.Item label="Admin" value="admin" />
