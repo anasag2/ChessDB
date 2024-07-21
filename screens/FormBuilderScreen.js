@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, ScrollView, StyleSheet, Alert, TouchableOpacity, FlatList } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
@@ -20,15 +20,25 @@ const FormScreen = () => {
   //console.log(form);
   //console.log(markAsCompleted);
   const [selectedStudents, setSelectedStudents] = useState([]);
-  const students  = [
-    { id: 1, name: 'Sami' },
-    { id: 2, name: 'Abdallah' },
-    { id: 3, name: 'Karmi' },
-    { id: 4, name: 'Ahmad' },
-    { id: 6, name: 'Anas' },
-    { id: 7, name: 'kal' },
-    { id: 8, name: 'Anasaas' },
-  ];
+  const [students, setStudents] = useState([]);
+  useEffect(() => {
+    loadStudents();
+  }, []);
+  const loadStudents = async () => {
+    try {
+      const groupRef = doc(db, 'groups', form.group);
+      const studentsCollectionRef = collection(groupRef, 'students');
+      const studentDocs = await getDocs(studentsCollectionRef);
+      const studentList = studentDocs.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name
+      }));
+      setStudents(studentList);
+      //console.log(students);
+    } catch (error) {
+      console.error("Error loading students: ", error);
+    }
+  };
   const handleSelectStudent = (student) => {
     if (selectedStudents.includes(student.id)) {
       setSelectedStudents(selectedStudents.filter(id => id !== student.id));
@@ -60,47 +70,62 @@ const FormScreen = () => {
     setShowDatePicker(null);
     handleInputChange(id, selectedDate.toISOString().split('T')[0]);
   };
+  const handleAddStudent = () => {
+    console.log("hii");
+  };
 
   const handleSubmit = async() => {
-    const responses = form.data.map(question => ({
-      question: question.question,
-      answer: formValues[question.id] || '',
-    }));
-    //console.log('User Responses:', responses);
+    // Create the initial responses array with form values
+    const responses = form.data.map(question => {
+      // Check if the question type is 'students'
+      if (question.type === 'students') {
+        // Filter and map the selected students
+        const studentNames = students
+          .filter(student => selectedStudents.includes(student.id))
+          .map(student => student.name);
+        
+        // Return the response with the question and formatted student names
+        return {
+          question: question.question,
+          answer: studentNames // Join names into a comma-separated string
+        };
+      } else {
+        // Return the response for other question types
+        return {
+          question: question.question,
+          answer: formValues[question.id] || '',
+        };
+      }
+    });
+  
+    console.log('User Responses:', responses);
+  
+    // Create a new document reference
     const newDocRef = doc(collection(db, form.formName));
-    let infos = {userName:form.userName, group:form.group};
+    let infos = { userName: form.userName, group: form.group };
+  
+    // Add responses to the infos object
     responses.forEach(element => {
       infos[element.question] = element.answer;
-      //console.log(infos);  
     });
+  
+    // Save the document to Firestore
     await setDoc(newDocRef, infos);
     Alert.alert('Form Submitted');
+  
+    // Update forms_to_fill and navigate to the HomePage
     let forms_to_fill = form.forms_to_fill;
-    //const formsMap = new Map(Object.entries(forms_to_fill));
-    //console.log(forms_to_fill);
     f = {};
     for (const [key, value] of forms_to_fill.entries()) {
-      if(key !== form.group){
+      if (key !== form.group) {
         f[key] = value;
-      };
-    };
-    //console.log(f);
-    //const batch = writeBatch(db);
-    //const userRef = doc(db, "users", form.id);
-    //batch.update(userRef, {"forms_to_fill": f});
-    //navigation.navigate('Login');
-    //await batch.commit();
-    // form.forms_to_fill.delete(form.group);
-    // console.log(form.forms_to_fill);
-    // const userRef1 = doc(db, "users", form.id);
-    // const user = await getDoc(userRef1);
-    //console.log(form);
+      }
+    }
+  
     const userData = form["userData"];
-    // userData["forms_to_fill"] = f;
-    // //console.log(userData.forms_to_fill);
     navigation.navigate("HomePage", { userData });
-    //markAsCompleted(form.name);
   };
+  
 
   return (
     <SafeAreaProvider>
@@ -151,6 +176,8 @@ const FormScreen = () => {
             
           // />
           //  </View>
+      
+        <View>
           <MultiSelect
           items={students}
           uniqueKey="id"
@@ -169,25 +196,12 @@ const FormScreen = () => {
           submitButtonColor={colors.yellow}
           submitButtonText="Submit"
         />
-            //to do by karmi
-            // <MultiSelect
-            // items={Student}
-            // uniqueKey="id"
-            // onSelectedItemsChange={setSelectedStudent}
-            // selectedItems={selectedTeachers}
-            // selectText="Pick Student"
-            // searchInputPlaceholderText="Search Student..."
-            // tagRemoveIconColor={colors.yellow}
-            // tagBorderColor={colors.purple}
-            // tagTextColor={colors.purple}
-            // selectedItemTextColor={colors.yellow}
-            // selectedItemIconColor={colors.yellow}
-            // itemTextColor={colors.purple}
-            // displayKey="name"
-            // searchInputStyle={{ color: colors.purple }}
-            // submitButtonColor={colors.yellow}
-            // submitButtonText="Submit"
-          // />
+          <TouchableOpacity style={styles.button} onPress={handleAddStudent}>
+                <Text style={styles.buttonText}>Add Student</Text>
+          </TouchableOpacity>
+          </View>
+       
+       
           )}
           
           {/* <TouchableOpacity style={styles.buttonStyle} onPress={handleAddStudent}>
@@ -216,6 +230,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     marginTop: 50,
+  },
+  button: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#FFD700',
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 12,
   },
   item: {
     padding: 20,
