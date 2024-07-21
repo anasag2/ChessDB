@@ -143,7 +143,7 @@ const LessonsScreen = () => {
         //console.log(forms);
         batch.update(userDoc,{"forms_to_fill": forms});
         await batch.commit();
-        alert("lesson created successfully");
+        alert("Lesson saved successfully!");
         setLessonGroup("");
         setLessonTeacher("");
         setLessonForm("");
