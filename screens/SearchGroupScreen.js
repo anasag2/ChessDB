@@ -172,6 +172,7 @@ const SearchGroupScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Search Group</Text>
       <TextInput
         style={styles.input}
         placeholder="Search Groups by Name"
@@ -179,7 +180,9 @@ const SearchGroupScreen = () => {
         value={searchText}
         onSubmitEditing={handleSearch}
       />
-      <Button title="Search" onPress={handleSearch} color={colors.yellow} />
+      <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleSearch}>
+        <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
       <FlatList
         data={groups}
         keyExtractor={(item) => item.id}
@@ -265,6 +268,13 @@ const colors = {
 };
 
 const styles = StyleSheet.create({
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.purple,
+      marginBottom: 20,
+      textAlign: 'center',
+    },
   container: {
     flex: 1,
     padding: 20,
@@ -303,6 +313,19 @@ const styles = StyleSheet.create({
     elevation: 5,
     maxHeight: '80%',  // Limit the height of the modal
     overflow: 'scroll' // Make the content scrollable if it exceeds the height
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  searchButton: {
+    backgroundColor: colors.purple, //purple color
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   modalText: {
     marginBottom: 15,
