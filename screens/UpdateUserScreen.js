@@ -254,7 +254,7 @@ const UpdateUserScreen = () => {
                     placeholder="Password"
                     secureTextEntry
                   />
-                  {Platform.OS === 'ios' ? (
+                  {/* {Platform.OS === 'ios' ? (
                     <TouchableOpacity
                       style={styles.pickerButton}
                       onPress={() => showPicker(index)}
@@ -270,7 +270,7 @@ const UpdateUserScreen = () => {
                       <Picker.Item label="Admin" value="admin" />
                       <Picker.Item label="Teacher" value="teacher" />
                     </Picker>
-                  )}
+                  )} */}
                   <Button title="Save" onPress={handleSave} />
                 </>
               ) : (
