@@ -20,7 +20,6 @@ const Tab = createBottomTabNavigator();
 const ActionsTabNavigator = () => {
   const route2 = useRoute();
   const user = route2.params;
-
   const CreateActionType = () => {
     if (user["actionType"] === 'Form') {
       return <FormGenerator />;
