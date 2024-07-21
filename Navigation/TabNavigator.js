@@ -45,7 +45,7 @@ const TabNavigator = () => {
 
           return <FontAwesome name={iconName} size={size} color={color} />;
         },
-          "tabBarActiveTintColor": "tomato",
+          "tabBarActiveTintColor": '#663D99',
           "tabBarInactiveTintColor": "gray",
           "tabBarStyle": [
             {

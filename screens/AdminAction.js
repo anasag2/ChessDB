@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Alert, Button, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Alert, Button, ScrollView} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native'; 
 import * as ImagePicker from 'expo-image-picker';
@@ -81,24 +81,30 @@ const AdminActionScreen = () => {
         <Button title="Take a photo" onPress={takePhoto} />
       </View>
       <View>
-        <TouchableOpacity style={styles.button} onPress={handleUser}>
+        <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleUser}>
           <Text style={styles.buttonText}>Users</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleForms}>
+        <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleForms}>
           <Text style={styles.buttonText}>Forms</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleGroup}>
+        <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleGroup}>
           <Text style={styles.buttonText}>Groups</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleSchools}>
+        <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleSchools}>
           <Text style={styles.buttonText}>Schools</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLessons}>
+        <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleLessons}>
           <Text style={styles.buttonText}>Lessons</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
+};
+
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F',
 };
 
 const styles = StyleSheet.create({
@@ -112,7 +118,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   buttonText: {
-    color: '#4B0082',
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -145,6 +151,15 @@ const styles = StyleSheet.create({
   trainerName: {
     fontSize: 18,
     marginBottom: 20,
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  searchButton: {
+    backgroundColor: colors.purple, // Purple color
   },
 });
 

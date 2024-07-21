@@ -176,6 +176,12 @@ const FormGenerator = () => {
   );
 };
 
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F',
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -186,8 +192,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
-    marginVertical: 20,
+    color: colors.purple,
+    marginBottom: 20,
+    textAlign: 'center',
   },
   formContainer: {
     width: '100%',
@@ -220,10 +227,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   addButton: {
-    backgroundColor: '#4CAF50', // Green color
+    backgroundColor: '#2196F3', // Green color
   },
   saveButton: {
-    backgroundColor: '#2196F3', // Blue color
+    backgroundColor: colors.purple, // Blue color
   },
   buttonText: {
     color: '#fff',

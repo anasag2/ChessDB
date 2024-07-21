@@ -137,13 +137,16 @@ const UpdateFormScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Search Form</Text>
       <TextInput
         style={styles.input}
         placeholder="Search Forms"
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      <Button title="Search" onPress={handleSearch} />
+      <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleSearch}>
+        <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
       <FlatList
         data={filteredForms}
         keyExtractor={(item) => item.id}
@@ -200,7 +203,20 @@ const UpdateFormScreen = () => {
   );
 };
 
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F',
+};
+
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.purple,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   container: {
     flex: 1,
     padding: 20,
@@ -267,6 +283,15 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  searchButton: {
+    backgroundColor: colors.purple, // Blue color
   },
 });
 
