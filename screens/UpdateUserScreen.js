@@ -139,6 +139,8 @@ const UpdateUserScreen = () => {
   };
 
   const openModal = (user) => {
+    setShowListF(false);
+    setShowListG(false);
     setSelectedUser(user);
     setEditedUser(user);
     setModalVisible(true);

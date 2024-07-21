@@ -109,7 +109,7 @@ const CreateGroupScreen = ({ navigation }) => {
     setSelectedTeachers([]);
     // await batch.commit();
   }
-
+//warrning in the render  flatlist
   return (
     <View style={styles.container}>
       <FlatList
