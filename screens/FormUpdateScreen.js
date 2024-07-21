@@ -123,17 +123,26 @@ const UpdateFormScreen = () => {
   const renderUserGroup = ({ item }) => (
     <TouchableOpacity onPress={() => handleUserGroupPress(item)}>
       <View style={styles.userGroupContainer}>
-        <Text>{'User: '}{item.userName} -{'> Group: '} {item.groupName}</Text>
+        <Text>{'User: '}{item.userName} -{' Group: '} {item.groupName}</Text>
       </View>
     </TouchableOpacity>
   );
 
-  const renderFormDetails = ({ item }) => (
-    <View style={styles.detailContainer}>
-      <Text style={styles.detailQuestion}>{item.question}</Text>
-      <Text style={styles.detailAnswer}>{item.answer}</Text>
-    </View>
-  );
+  const renderFormDetails = ({ item }) => {
+    const formatAnswer = (answer) => {
+      if (Array.isArray(answer)) {
+        return answer.join(' - '); // Join array elements with semicolon and space
+      }
+      return answer;
+    };
+
+    return (
+      <View style={styles.detailContainer}>
+        <Text style={styles.detailQuestion}>{item.question}</Text>
+        <Text style={styles.detailAnswer}>{formatAnswer(item.answer)}</Text>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -284,14 +293,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  roundButton: {
-    borderRadius: 20,
-    padding: 10,
-    alignItems: 'center',
-    marginVertical: 10,
-  },
   searchButton: {
-    backgroundColor: colors.purple, // Blue color
+    backgroundColor: colors.purple,
   },
 });
 
