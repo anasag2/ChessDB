@@ -3,9 +3,8 @@ import {
   View, 
   Text, 
   TextInput, 
-  Button, 
-  FlatList, 
   TouchableOpacity, 
+  FlatList, 
   StyleSheet, 
   Modal, 
   ScrollView, 
@@ -135,7 +134,6 @@ const SearchGroupScreen = () => {
     });
   };
   
-  
   const handleEditGroup = (group) => {
     setSelectedGroup({
       ...group,
@@ -188,39 +186,40 @@ const SearchGroupScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={renderGroup}
       />
-    {selectedGroup && (
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      {selectedGroup && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
           <View style={styles.modalView}>
-            {editMode ? (
-              <>
-                <TextInput
-                  style={styles.input}
-                  value={selectedGroup.groupName}
-                  onChangeText={(text) => handleChange('groupName', text)}
-                  placeholder="Group Name"
-                />
-                <TextInput
-                  style={styles.input}
-                  value={selectedGroup.class}
-                  onChangeText={(text) => handleChange('class', text)}
-                  placeholder="Class Name"
-                />
-                <Picker
-                  selectedValue={selectedGroup.school}
-                  onValueChange={(itemValue) => handleChange('school', itemValue)}
-                  style={styles.input}
-                >
-                  <Picker.Item label="Select a school" value="" />
-                  {schools.map(school => (
-                    <Picker.Item label={school.name} value={school.name} key={school.name} />
-                  ))}
-                </Picker>
-                <Text style={styles.label}>Users:</Text>
+            <ScrollView style={styles.scrollView}>
+              {editMode ? (
+                <>
+                  <TextInput
+                    style={[styles.input, styles.editInput]}
+                    value={selectedGroup.groupName}
+                    onChangeText={(text) => handleChange('groupName', text)}
+                    placeholder="Group Name"
+                  />
+                  <TextInput
+                    style={[styles.input, styles.editInput]}
+                    value={selectedGroup.class}
+                    onChangeText={(text) => handleChange('class', text)}
+                    placeholder="Class Name"
+                  />
+                  <Picker
+                    selectedValue={selectedGroup.school}
+                    onValueChange={(itemValue) => handleChange('school', itemValue)}
+                    style={[styles.input, styles.editInput]}
+                  >
+                    <Picker.Item label="Select a school" value="" />
+                    {schools.map(school => (
+                      <Picker.Item label={school.name} value={school.name} key={school.name} />
+                    ))}
+                  </Picker>
+                  <Text style={styles.label}>Users:</Text>
                   {users.map(user => (
                     <View key={user.id} style={styles.checkboxContainer}>
                       <Text>{user.name || 'Unknown User'}</Text>
@@ -233,52 +232,69 @@ const SearchGroupScreen = () => {
                       />
                     </View>
                   ))}
-                  <Button title="Save Changes" onPress={handleSaveChanges} color={colors.yellow} />
+                  <TouchableOpacity style={[styles.roundButton, styles.updateButton]} onPress={handleSaveChanges}>
+                    <Text style={styles.buttonText}>Save Changes</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.roundButton, styles.closeButton]} onPress={() => {
+                    setModalVisible(false);
+                    setEditMode(false);
+                  }}>
+                    <Text style={styles.buttonText}>Close</Text>
+                  </TouchableOpacity>
                 </>
               ) : (
-              <>
-                <Text style={styles.modalText}>Group Name: {selectedGroup.groupName}</Text>
-                <Text style={styles.modalText}>Class Name: {selectedGroup.class || 'N/A'}</Text>
-                <Text style={styles.modalText}>School: {selectedGroup.school || 'Unknown'}</Text>
-                <Text style={styles.modalText}>Users:</Text>
-                {selectedGroup.teachers?.map(userId => {
-                const user = users.find(u => u.id === userId);
-                return <Text key={userId}>{user ? user.name : 'Unknown user'}</Text>;
-              })}
-              <Button title="Edit" onPress={() => handleEditGroup(selectedGroup)} color={colors.purple} />
-              <Button title="Delete" onPress={handleDeleteGroup} color="#ff0000" />
-            </>
-          )}
-          <Button title="Close" onPress={() => {
-            setModalVisible(false);
-            setEditMode(false);
-          }} color={colors.purple} />
-        </View>
-      </Modal>
-    )}
-  </View>
-);
-  
+                <View style={styles.infoContainer}>
+                  <Text style={styles.modalText}>Group Name: {selectedGroup.groupName}</Text>
+                  <Text style={styles.modalText}>Class Name: {selectedGroup.class || 'N/A'}</Text>
+                  <Text style={styles.modalText}>School: {selectedGroup.school || 'Unknown'}</Text>
+                  <Text style={styles.modalText}>Users:</Text>
+                  {selectedGroup.teachers?.map(userId => {
+                    const user = users.find(u => u.id === userId);
+                    return <Text key={userId} style={styles.userText}>{user ? user.name : 'Unknown user'}</Text>;
+                  })}
+                  <TouchableOpacity style={[styles.roundButton, styles.editButton]} onPress={() => handleEditGroup(selectedGroup)}>
+                    <Text style={styles.buttonText}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.roundButton, styles.deleteButton]} onPress={handleDeleteGroup}>
+                    <Text style={styles.buttonText}>Delete</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.roundButton, styles.closeButton]} onPress={() => {
+                    setModalVisible(false);
+                    setEditMode(false);
+                  }}>
+                    <Text style={styles.buttonText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </Modal>
+      )}
+    </View>
+  );
 };
 
 const colors = {
   purple: '#663D99',
   lightGrey: '#F1F4F9',
-  yellow: '#F0C10F'
+  yellow: '#F0C10F',
+  red: '#ff0000',
+  blue: '#2199F9',
+  gray: '#777'
 };
 
 const styles = StyleSheet.create({
-    title: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: colors.purple,
-      marginBottom: 20,
-      textAlign: 'center',
-    },
   container: {
     flex: 1,
     padding: 20,
     backgroundColor: colors.lightGrey,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.purple,
+    marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
@@ -288,6 +304,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: colors.purple,
     backgroundColor: '#FFFFFF'
+  },
+  editInput: {
+    borderColor: colors.blue, // Highlight input fields when editing
   },
   item: {
     padding: 10,
@@ -314,6 +333,9 @@ const styles = StyleSheet.create({
     maxHeight: '80%',  // Limit the height of the modal
     overflow: 'scroll' // Make the content scrollable if it exceeds the height
   },
+  scrollView: {
+    width: '100%',
+  },
   roundButton: {
     borderRadius: 20,
     padding: 10,
@@ -321,7 +343,19 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   searchButton: {
-    backgroundColor: colors.purple, //purple color
+    backgroundColor: colors.purple,
+  },
+  editButton: {
+    backgroundColor: colors.blue,
+  },
+  updateButton: {
+    backgroundColor: colors.blue,
+  },
+  deleteButton: {
+    backgroundColor: colors.red,
+  },
+  closeButton: {
+    backgroundColor: colors.gray,
   },
   buttonText: {
     color: '#fff',
@@ -329,6 +363,11 @@ const styles = StyleSheet.create({
   },
   modalText: {
     marginBottom: 15,
+    textAlign: "center",
+    color: colors.purple,
+  },
+  userText: {
+    marginBottom: 5,
     textAlign: "center",
     color: colors.purple,
   },
@@ -353,6 +392,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     color: colors.purple,
+  },
+  infoContainer: {
+    borderWidth: 1,
+    borderColor: colors.purple,
+    borderRadius: 10,
+    padding: 15,
+    backgroundColor: colors.lightGrey,
   },
 });
 
