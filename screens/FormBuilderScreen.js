@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, ScrollView, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, StyleSheet, Alert, TouchableOpacity, FlatList } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
@@ -8,6 +8,8 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import db from '../firebaseConfig.js';
 import MultiSelect from 'react-native-multiple-select';
 import { collection, getDocs, setDoc, doc, writeBatch, getDoc } from "firebase/firestore";
+import { Ionicons } from '@expo/vector-icons';
+
 
 const FormScreen = () => {
   const route = useRoute();
@@ -17,22 +19,42 @@ const FormScreen = () => {
   const navigation = useNavigation();
   //console.log(form);
   //console.log(markAsCompleted);
-  const [selectedStudent, setSelectedStudent] = useState([]);
-  const Student = [
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const students  = [
     { id: 1, name: 'Sami' },
     { id: 2, name: 'Abdallah' },
     { id: 3, name: 'Karmi' },
     { id: 4, name: 'Ahmad' },
-    { id: 5, name: 'Anas' },
+    { id: 6, name: 'Anas' },
+    { id: 7, name: 'kal' },
+    { id: 8, name: 'Anasaas' },
   ];
+  const handleSelectStudent = (student) => {
+    if (selectedStudents.includes(student.id)) {
+      setSelectedStudents(selectedStudents.filter(id => id !== student.id));
+     
+    } else {
+      setSelectedStudents([...selectedStudents, student.id]);
+      console.log(selectedStudents);
+    }
+  };
+
+  const renderUser = ({ item }) => (
+    <TouchableOpacity onPress={() => handleSelectStudent(item)}>
+    <View style={styles.item}>
+      <Text style={styles.title}>{item.name}</Text>
+      {selectedStudents.includes(item.id) && (
+        <Ionicons name="checkmark-circle" size={24} color="green" />
+      )}
+    </View>
+  </TouchableOpacity>
+  );
 
 
   const handleInputChange = (id, value) => {
     setFormValues({ ...formValues, [id]: value });
   };
-  const handleAddStudent = (id, value) => {
-    //add student 
-  };
+ 
 
   const handleDateChange = (event, selectedDate, id) => {
     setShowDatePicker(null);
@@ -83,7 +105,7 @@ const FormScreen = () => {
   return (
     <SafeAreaProvider>
     <SafeAreaView style={styles.container}>
-    <ScrollView style={styles.container}>
+    
       {form.data.map((question) => (
         <View key={question.id} style={styles.questionContainer}>
           <Text style={styles.questionText}>{question.question}</Text>
@@ -118,9 +140,37 @@ const FormScreen = () => {
               )}
             </>
           )}
+          
           {question.type === 'students' && (
+          //   <View style={styles.containerf}>
+          //   <FlatList
+          //   nestedScrollEnabled
+          //   data={students}
+          //   renderItem={renderUser}
+          //   keyExtractor={item => item.id}
+            
+          // />
+          //  </View>
+          <MultiSelect
+          items={students}
+          uniqueKey="id"
+          onSelectedItemsChange={setSelectedStudents}
+          selectedItems={selectedStudents}
+          selectText="Pick Students"
+          searchInputPlaceholderText="Search Student..."
+          tagRemoveIconColor={colors.yellow}
+          tagBorderColor={colors.purple}
+          tagTextColor={colors.purple}
+          selectedItemTextColor={colors.yellow}
+          selectedItemIconColor={colors.yellow}
+          itemTextColor={colors.purple}
+          displayKey="name"
+          searchInputStyle={{ color: colors.purple }}
+          submitButtonColor={colors.yellow}
+          submitButtonText="Submit"
+        />
             //to do by karmi
-            <MultiSelect
+            // <MultiSelect
             // items={Student}
             // uniqueKey="id"
             // onSelectedItemsChange={setSelectedStudent}
@@ -137,22 +187,47 @@ const FormScreen = () => {
             // searchInputStyle={{ color: colors.purple }}
             // submitButtonColor={colors.yellow}
             // submitButtonText="Submit"
-          />
+          // />
           )}
           
           {/* <TouchableOpacity style={styles.buttonStyle} onPress={handleAddStudent}>
                 <Text style={styles.buttonText}>Add Student</Text>
           </TouchableOpacity> */}
+          
         </View>
+        
       ))}
-      <Button title="Submit" onPress={handleSubmit} />
-    </ScrollView>
+     
+    
+    <Button title="Submit" onPress={handleSubmit} />
     </SafeAreaView>
     </SafeAreaProvider>
   );
 };
 
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F'
+};
+
 const styles = StyleSheet.create({
+  containerf: {
+    flex: 1,
+    backgroundColor: '#fff',
+    marginTop: 50,
+  },
+  item: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 18,
+  },
   container: {
     flex: 1,
     padding: 20,

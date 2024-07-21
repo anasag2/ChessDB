@@ -11,10 +11,11 @@ import ActionsTabNavigator from './ActionsTabNavigator';
 import FormBuilderScreen from '../screens/FormBuilderScreen';
 import CustomHeader from '../components/BurgerMenu';
 import CreateGroupScreen from '../screens/CreateGroupsScreen';
-
+import { LogBox } from 'react-native';
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
+  LogBox.ignoreAllLogs();
   const [menuVisible, setMenuVisible] = useState(false);
 
   const toggleMenu = () => {
