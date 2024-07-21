@@ -121,6 +121,7 @@ const CreateUserScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Create User</Text>
       {Object.keys(formData).map((field) => (
         <View key={field} style={styles.fieldContainer}>
           {isEditing[field] ? (
@@ -183,7 +184,7 @@ const CreateUserScreen = () => {
       {/* <View style={styles.buttonContainer}>
       <Button title="Save" onPress={handleSave} color ={colors.purple} />
       </View> */}
-           <TouchableOpacity style={styles.buttonContainer} onPress={handleSave}>
+           <TouchableOpacity style={[styles.roundButton, styles.saveButton]} onPress={handleSave}>
             <Text style={styles.buttonText} >Save</Text>
           </TouchableOpacity>
     </ScrollView>
@@ -197,6 +198,13 @@ const colors = {
 };
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.purple,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   container: {
     flexGrow: 1,
     padding: 20,
@@ -228,9 +236,18 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   buttonText:{
-    color:'purple',
+    color:'#fff',
     fontWeight: 'bold',
-  }
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  saveButton: {
+    backgroundColor: colors.purple,
+  },
 
 });
 

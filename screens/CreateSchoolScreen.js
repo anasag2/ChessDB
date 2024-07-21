@@ -78,6 +78,12 @@ const SchoolsScreen = () => {
   );
 };
 
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F',
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -87,7 +93,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.purple,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -105,7 +111,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   saveButton: {
-    backgroundColor: '#2196F3', // Blue 
+    backgroundColor: colors.purple,
   },
   buttonText: {
     color: '#fff',

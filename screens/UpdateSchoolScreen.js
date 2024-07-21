@@ -126,7 +126,7 @@ const UpdateSchoolScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Update School</Text>
+      <Text style={styles.title}>Search School</Text>
       <TextInput
         style={styles.input}
         placeholder="Search Schools"
@@ -179,6 +179,12 @@ const UpdateSchoolScreen = () => {
   );
 };
 
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F',
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -188,7 +194,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.purple,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -232,7 +238,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   searchButton: {
-    backgroundColor: '#2196F3', // Blue color
+    backgroundColor: colors.purple, // Blue color
   },
   updateButton: {
     backgroundColor: '#2199F9', // Blue color

@@ -80,7 +80,6 @@ const UpdateUserScreen = () => {
 
   const handleDelete = async() => {
     // setEditMode(true);
-//    setEditedUser({ ...selectedUser });
     //console.log(selectedUser);
     const lessonRef = doc(db, 'users', selectedUser.id);
     await deleteDoc(lessonRef);
@@ -195,13 +194,16 @@ const UpdateUserScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Update User</Text>
       <TextInput
         style={styles.input}
         placeholder="Search by name"
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      <Button title="Search" onPress={handleSearch} />
+      <TouchableOpacity style={[styles.roundButton, styles.searchButton]} onPress={handleSearch}>
+        <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
       <FlatList
         data={filteredUsers}
         keyExtractor={(item) => item.id}
@@ -367,7 +369,20 @@ const UpdateUserScreen = () => {
   );
 };
 
+const colors = {
+  purple: '#663D99',
+  lightGrey: '#F1F4F9',
+  yellow: '#F0C10F',
+};
+
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.purple,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   container: {
     flex: 1,
     padding: 20,
@@ -386,7 +401,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 20,
     marginBottom: 10,
   },
   userContainer: {
@@ -440,6 +455,19 @@ const styles = StyleSheet.create({
   },
   Show: {
     marginTop: 10,
+  },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  searchButton: {
+    backgroundColor: colors.purple, // Blue color
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

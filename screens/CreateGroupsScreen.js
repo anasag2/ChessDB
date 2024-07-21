@@ -112,6 +112,7 @@ const CreateGroupScreen = ({ navigation }) => {
 //warrning in the render  flatlist
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Create Group</Text>
       <FlatList
         data={fields}
         keyExtractor={item => item}
@@ -160,7 +161,7 @@ const CreateGroupScreen = ({ navigation }) => {
               submitButtonText="Submit"
             />
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.buttonStyle} onPress={handleSave}>
+              <TouchableOpacity style={[styles.roundButton, styles.saveButton]} onPress={handleSave}>
                 <Text style={styles.buttonText}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -178,6 +179,13 @@ const colors = {
 };
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.purple,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   container: {
     flexGrow: 1,
     padding: 10,
@@ -217,8 +225,17 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 4,
   },
+  roundButton: {
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  saveButton: {
+    backgroundColor : colors.purple,
+  },
   buttonText: {
-    color: colors.purple,
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold'
   }
