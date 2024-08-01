@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, ScrollView, StyleSheet, Alert, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TextInput, Button, Modal, StyleSheet, Alert, TouchableOpacity, FlatList } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
@@ -17,8 +17,10 @@ const FormScreen = () => {
   const [formValues, setFormValues] = useState({});
   const [showDatePicker, setShowDatePicker] = useState(null);
   const navigation = useNavigation();
-  //console.log(form);
-  //console.log(markAsCompleted);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [studentName, setStudentName] = useState('');
+  const [schoolName, setSchoolName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [students, setStudents] = useState([]);
   useEffect(() => {
@@ -71,8 +73,24 @@ const FormScreen = () => {
     handleInputChange(id, selectedDate.toISOString().split('T')[0]);
   };
   const handleAddStudent = () => {
-    console.log("hii");
+    setModalVisible(true);
   };
+
+  const handleSubmitStudent = () => {
+    const newStudent = {
+      id: students.length + 1,
+      name: studentName,
+      school: schoolName,
+      phone: phoneNumber,
+    };
+    setStudents([...students, newStudent]);
+    setModalVisible(false);
+    setStudentName('');
+    setSchoolName('');
+    setPhoneNumber('');
+  };
+
+  
 
   const handleSubmit = async() => {
     // Create the initial responses array with form values
@@ -214,6 +232,33 @@ const FormScreen = () => {
      
     
     <Button title="Submit" onPress={handleSubmit} />
+
+    <Modal visible={isModalVisible} animationType="slide">
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>Add Student</Text>
+          <TextInput
+            placeholder="Student Name"
+            value={studentName}
+            onChangeText={setStudentName}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="School Name"
+            value={schoolName}
+            onChangeText={setSchoolName}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Phone Number"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
+            style={styles.input}
+          />
+          <Button title="Submit" onPress={handleSubmitStudent} />
+          <Button title="Close" onPress={() => setModalVisible(false)} />
+        </View>
+      </Modal>
     </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -274,6 +319,17 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 24,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+
 });
 
 export default FormScreen;
