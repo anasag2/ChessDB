@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const FormScreen = () => {
   const route = useRoute();
-  const { form, markAsCompleted } = route.params;
+  const { form } = route.params;
   const [formValues, setFormValues] = useState({});
   const [showDatePicker, setShowDatePicker] = useState(null);
   const navigation = useNavigation();
@@ -135,8 +135,9 @@ const FormScreen = () => {
   
     // Update forms_to_fill and navigate to the HomePage
     let forms_to_fill = form.forms_to_fill;
+    const formsMap = new Map(Object.entries(forms_to_fill));
     f = {};
-    for (const [key, value] of forms_to_fill.entries()) {
+    for (const [key, value] of formsMap.entries()) {
       if (key !== form.group) {
         f[key] = value;
       }

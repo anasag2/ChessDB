@@ -19,13 +19,13 @@ const FormListScreen =() => {
     const fetchForms = async () => {
 
       const formsMap = new Map(Object.entries(user.userData.forms_to_fill));
- 
+      const formsObject = Object.fromEntries(formsMap);
       const forms = [];
  
       const groupsRef = collection(db, "groups");
       for (const [key, value] of formsMap.entries()) {
         let count = 1;
-        let current_form = {name:"", data:[], group:"", userName:user.userData.name, formName:"", forms_to_fill:formsMap, id:user.userData.id, userData:user.userData};
+        let current_form = {name:"", data:[], group:"", userName:user.userData.name, formName:"", forms_to_fill:formsObject, id:user.userData.id, userData:user.userData};
         const groupRef = doc(groupsRef, key);
         const group = await getDoc(groupRef);
         current_form.name = `${value} for group ${group.data().groupName}`;
@@ -107,10 +107,10 @@ const FormListScreen =() => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.formItem}
-            onPress={() => navigation.navigate('Form', { form: item, markAsCompleted })}
+            onPress={() => 
+              navigation.navigate('Form', { form: item})}
           >
             <Text>{item.name}</Text>
-            {completedForms.includes(item.name) && <Text style={styles.checkmark}>✔️</Text>}
           </TouchableOpacity>
         )}
       />
