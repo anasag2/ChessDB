@@ -1,11 +1,7 @@
+import 'react-native-gesture-handler';
 import React from 'react';
-import AppNavigator from './Navigation/AppNavigator';
-import { LogBox } from 'react-native';
-
-
-
+import AppNavigator from './navigation/AppNavigator';
 
 export default function App() {
-  LogBox.ignoreAllLogs();
   return <AppNavigator />;
 }
