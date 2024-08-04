@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import db from '../firebaseConfig.js';
-import { collection, getDocs, doc, updateDoc, deleteDoc, getDoc, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 
 const UpdateSchoolScreen = () => {
   const [originalSchools, setOriginalSchools] = useState([]);
@@ -20,7 +19,7 @@ const UpdateSchoolScreen = () => {
 
   const loadSchools = async () => {
     try {
-      const schoolsRef = collection(db,'schools');
+      const schoolsRef = collection(db, 'schools');
       const schoolsSnapshot = await getDocs(schoolsRef);
       const loadedSchools = schoolsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setOriginalSchools(loadedSchools);
@@ -40,17 +39,11 @@ const UpdateSchoolScreen = () => {
   };
 
   const handleUpdateSchool = async () => {
-    const updatedSchools = originalSchools.map((school) =>
-      school.id === selectedSchool
-        ? { ...school, supervisorName, supervisorContact }
-        : school
-    );
-    if(supervisorContact !== "" || supervisorName !== ""){
+    if (supervisorContact !== "" || supervisorName !== "") {
       try {
         const batch = writeBatch(db);
-        const schoolsRef = collection(db, "schools");
-        const schoolDoc = doc(schoolsRef, selectedSchool);
-        batch.update(schoolDoc, {"supervisorContact": supervisorContact, "supervisorName": supervisorName});
+        const schoolDoc = doc(db, 'schools', selectedSchool);
+        batch.update(schoolDoc, { supervisorContact, supervisorName });
         await batch.commit();
         loadSchools(); // Reload schools to reflect the update
         setModalVisible(false);
@@ -58,49 +51,48 @@ const UpdateSchoolScreen = () => {
       } catch (e) {
         alert('Error updating school:', e);
       }
-    }
-    else{
-      alert("you have an empty label");
+    } else {
+      alert("You have an empty label");
     }
   };
 
   const handleDeleteSchool = async () => {
-    const filteredSchools = originalSchools.filter((school) => school.id !== selectedSchool);
     try {
-      const schoolsRef = doc(db, 'schools', selectedSchool);
-      await deleteDoc(schoolsRef);
+      const schoolDoc = doc(db, 'schools', selectedSchool);
+      await deleteDoc(schoolDoc);
       const batch = writeBatch(db);
-      const groupsRef = collection(db, "groups");
+      const groupsRef = collection(db, 'groups');
       const groupsSnapshot = await getDocs(groupsRef);
       groupsSnapshot.forEach((doc1) => {
         if (selectedSchool === doc1.data().school) {
-          const groupDoc = doc(groupsRef, doc1.id);
-          batch.update(groupDoc, { "school": ""});
+          batch.update(doc(groupsRef, doc1.id), { school: '' });
         }
       });
       await batch.commit();
-      // let user = (await getDoc(userDoc)).data();
-      await AsyncStorage.setItem('schools', JSON.stringify(filteredSchools));
-      alert('School deleted successfully!');
       loadSchools(); // Reload schools to reflect the deletion
       setModalVisible(false);
       setSelectedSchool('');
       setSchoolName('');
       setSupervisorName('');
       setSupervisorContact('');
+      alert('School deleted successfully!');
     } catch (e) {
-     alert('Error deleting school:', e);
+      alert('Error deleting school:', e);
     }
   };
 
   const handleSearch = () => {
-    const filtered = originalSchools.filter((school) =>
-      school.schoolName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setSchools(filtered.sort((a, b) => a.schoolName.localeCompare(b.schoolName)));
+    if (searchQuery.trim() === "") {
+      setSchools(originalSchools);
+    } else {
+      const filtered = originalSchools.filter((school) =>
+        school.id && school.id.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setSchools(filtered.sort((a, b) => a.id.localeCompare(b.id)));
+    }
   };
 
-  const highlightText = (text, highlight) => {
+  const highlightText = (text = '', highlight) => {
     const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
     return (
       <Text>
@@ -114,9 +106,10 @@ const UpdateSchoolScreen = () => {
       </Text>
     );
   };
+
   const renderSchoolItem = ({ item }) => (
     <TouchableOpacity onPress={() => handleSchoolSelect(item.id)} style={styles.schoolItem}>
-      {highlightText(item.id, searchQuery)}
+      {highlightText(item.id || 'Undefined', searchQuery)}
     </TouchableOpacity>
   );
 
