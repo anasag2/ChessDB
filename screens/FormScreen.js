@@ -17,16 +17,15 @@ const FormListScreen =() => {
 
   useEffect(() => {
     const fetchForms = async () => {
-      //console.log(user.userData.forms_to_fill);
+
       const formsMap = new Map(Object.entries(user.userData.forms_to_fill));
-      //console.log(formsMap);
+ 
       const forms = [];
-      // let questions = {};
+ 
       const groupsRef = collection(db, "groups");
       for (const [key, value] of formsMap.entries()) {
         let count = 1;
         let current_form = {name:"", data:[], group:"", userName:user.userData.name, formName:"", forms_to_fill:formsMap, id:user.userData.id, userData:user.userData};
-        //console.log(`Key: ${key}, Value: ${value}`);
         const groupRef = doc(groupsRef, key);
         const group = await getDoc(groupRef);
         current_form.name = `${value} for group ${group.data().groupName}`;
@@ -35,16 +34,14 @@ const FormListScreen =() => {
         const docRef = doc(db, "forms", value);
         questions = (await getDoc(docRef)).data().questions;
         const questions_map = new Map(Object.entries(questions));
-        //console.log(questions_map);
         for (const [key2, value2] of questions_map.entries()) {
-          //console.log(`Key: ${key2}, Value: ${value2}`);
           current_form.data[current_form.data.length] = {id:count, question:key2, type:value2};
           count += 1;
         };
-        //console.log(current_form.data);
+
         forms.push(current_form);
       }
-      //console.log(forms);
+
       setForms(forms);
     };
     

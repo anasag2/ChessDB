@@ -79,9 +79,6 @@ const UpdateUserScreen = () => {
   );
 
   const handleDelete = async() => {
-    // setEditMode(true);
-    // setEditedUser({ ...selectedUser });
-    //console.log(selectedUser);
     const lessonRef = doc(db, 'users', selectedUser.id);
     await deleteDoc(lessonRef);
     Alert.alert('user deleted successfully!');

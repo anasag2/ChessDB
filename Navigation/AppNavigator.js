@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { TouchableOpacity, Image, StyleSheet, View, Text, Modal } from 'react-native';
+import {  StyleSheet } from 'react-native';
 import LoginScreen from '../screens/LoginScreen';
 import VerifyUserScreen from '../screens/VerifyUserScreen';
 import PasswordResetScreen from '../screens/PasswordResetScreen';

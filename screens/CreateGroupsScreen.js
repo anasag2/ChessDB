@@ -16,21 +16,6 @@ const CreateGroupScreen = ({ navigation }) => {
   const [teachers, setTeachers] = useState([]);
   const [schools, setSchools] = useState([]);
 
-  // useLayoutEffect(() => {
-  //   console.log('navigation', navigation);
-  //   navigation.setOptions({
-  //     headerTitle: 'Create Group',
-  //     headerStyle: {
-  //       backgroundColor: '#f5f5f5', // Example background color
-  //     },
-  //     headerTitleStyle: {
-  //       fontWeight: 'bold',
-  //       // fontFamily: 'IBMPlexSans-Regular', // Ensure your custom font is loaded appropriately
-  //     },
-  //     headerTintColor: '#663D99', // Color for header back button and title
-  //   });
-  // }, [navigation]);
-
   const [formData, setFormData] = useState(initialFormData);
   const fields = Object.keys(formData);
 
@@ -43,7 +28,7 @@ const CreateGroupScreen = ({ navigation }) => {
           let user = {id: doc.id, name: doc.data().name};
           t.push(user);
       });
-      //console.log(t);
+
       t.sort((a, b) => a.name.localeCompare(b.name));
       setTeachers(t);
       const snapshot1 = await getDocs(collection(db, "schools"));
@@ -52,10 +37,10 @@ const CreateGroupScreen = ({ navigation }) => {
         let school = {name: doc.id};
         s.push(school);
       });
-      //console.log(t);
+
       s.sort((a, b) => a.name.localeCompare(b.name));
       setSchools(s);
-      //console.log(schools);
+
     };
     loadusers();
   }, []);
@@ -78,7 +63,7 @@ const CreateGroupScreen = ({ navigation }) => {
       alert("Please choose a school");
       return;
     }
-    //console.log(selectedTeachers);
+
     const groupData = {
       groupName:formData.groupName,
       class: formData.class,
@@ -99,15 +84,13 @@ const CreateGroupScreen = ({ navigation }) => {
       });
       const batch = writeBatch(db);
       y.push(groupId);
-      //console.log(groupId);
-      //console.log(y);
       batch.update(userDoc, {"groups": y});
       await batch.commit();
     });
     alert("Group added successfully!");
     setFormData(initialFormData);
     setSelectedTeachers([]);
-    // await batch.commit();
+
   }
 //warrning in the render  flatlist
   return (
@@ -126,7 +109,7 @@ const CreateGroupScreen = ({ navigation }) => {
                 style={styles.input}
               >
                 {schools.map((school) => (
-                  <Picker.Item label={school.name} value={school.name}/>
+                  <Picker.Item label={school.name} value={school.name} key={school.name}/>
                 ))}
               </Picker>
             ) : (

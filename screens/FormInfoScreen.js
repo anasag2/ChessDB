@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { View, TextInput, Button, FlatList, StyleSheet } from 'react-native';
 import { ListItem } from 'react-native-elements';
 
 const SearchScreen = () => {
@@ -46,19 +43,6 @@ const SearchScreen = () => {
   );
 };
 
-// const Stack = createStackNavigator();
-
-// const App = () => {
-//   return (
-//     <SafeAreaProvider>
-//       <NavigationContainer>
-//         <Stack.Navigator initialRouteName="Search">
-//           <Stack.Screen name="Search" component={SearchScreen} />
-//         </Stack.Navigator>
-//       </NavigationContainer>
-//     </SafeAreaProvider>
-//   );
-// };
 
 const styles = StyleSheet.create({
   container: {

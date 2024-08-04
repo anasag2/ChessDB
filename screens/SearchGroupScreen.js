@@ -38,7 +38,7 @@ const SearchGroupScreen = () => {
         const loadedUsers = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setUsers(loadedUsers);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        alert("Error fetching data:", error);
       }
     };
 
@@ -82,7 +82,6 @@ const SearchGroupScreen = () => {
         setEditMode(false);
         alert('Group updated successfully!');
       } catch (error) {
-        console.error("Error updating group:", error);
         alert('Failed to update group. Please try again.');
       }
     }
@@ -105,9 +104,9 @@ const SearchGroupScreen = () => {
       updateDoc(groupRef, {
         teachers: updatedTeachers
       }).then(() => {
-        console.log("Group updated successfully.");
+        alert("Group updated successfully.");
       }).catch(error => {
-        console.error("Error updating group:", error);
+        alert("Error updating group:", error);
       });
   
       // Optionally update the user document in Firestore
@@ -123,9 +122,9 @@ const SearchGroupScreen = () => {
           updateDoc(userRef, {
             groups: updatedUserGroups
           }).then(() => {
-            console.log("User updated successfully.");
+           alert("User updated successfully.");
           }).catch(error => {
-            console.error("Error updating user groups:", error);
+            alert("Error updating user groups:", error);
           });
         }
       });

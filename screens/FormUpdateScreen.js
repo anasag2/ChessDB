@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   FlatList,
   StyleSheet,
   Modal,
@@ -84,7 +83,7 @@ const UpdateFormScreen = () => {
       setSelectedForm(formId);
       setModalVisible(true);
     } catch (error) {
-      console.error('Error fetching user groups:', error);
+      alert('Error fetching user groups:', error);
     }
   };
 
@@ -108,7 +107,7 @@ const UpdateFormScreen = () => {
       setModalVisible(false);
       setDetailsModalVisible(true);
     } catch (error) {
-      console.error('Error fetching form details:', error);
+      alert('Error fetching form details:', error);
     }
   };
 

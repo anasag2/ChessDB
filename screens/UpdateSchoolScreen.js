@@ -25,9 +25,8 @@ const UpdateSchoolScreen = () => {
       const loadedSchools = schoolsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setOriginalSchools(loadedSchools);
       setSchools(loadedSchools);
-      //console.log(loadedSchools);
     } catch (e) {
-      console.error('Error loading schools:', e);
+      alert('Error loading schools:', e);
     }
   };
 
@@ -48,8 +47,6 @@ const UpdateSchoolScreen = () => {
     );
     if(supervisorContact !== "" || supervisorName !== ""){
       try {
-      //await AsyncStorage.setItem('schools', JSON.stringify(updatedSchools));
-      //console.log(selectedSchool);
         const batch = writeBatch(db);
         const schoolsRef = collection(db, "schools");
         const schoolDoc = doc(schoolsRef, selectedSchool);
@@ -59,7 +56,7 @@ const UpdateSchoolScreen = () => {
         setModalVisible(false);
         alert('School updated successfully!');
       } catch (e) {
-        console.error('Error updating school:', e);
+        alert('Error updating school:', e);
       }
     }
     else{
@@ -77,7 +74,6 @@ const UpdateSchoolScreen = () => {
       const groupsSnapshot = await getDocs(groupsRef);
       groupsSnapshot.forEach((doc1) => {
         if (selectedSchool === doc1.data().school) {
-          //console.log("entered");
           const groupDoc = doc(groupsRef, doc1.id);
           batch.update(groupDoc, { "school": ""});
         }
@@ -93,7 +89,7 @@ const UpdateSchoolScreen = () => {
       setSupervisorName('');
       setSupervisorContact('');
     } catch (e) {
-      console.error('Error deleting school:', e);
+     alert('Error deleting school:', e);
     }
   };
 
