@@ -75,14 +75,18 @@ const FormScreen = () => {
     setModalVisible(true);
   };
 
-  const handleSubmitStudent = () => {
+  const handleSubmitStudent = async() => {
     const newStudent = {
-      id: students.length + 1,
+      id:1,
       name: studentName,
-      school: schoolName,
       phone: phoneNumber,
     };
-    setStudents([...students, newStudent]);
+    const student = {name: studentName, phone: phoneNumber};
+    const groupRef = doc(db, 'groups', form.group);
+    const studentsCollectionRef = collection(groupRef, 'students');
+    const studentDoc = doc(studentsCollectionRef);
+    await setDoc(studentDoc, student);
+    loadStudents();
     setModalVisible(false);
     setStudentName('');
     setSchoolName('');
@@ -238,12 +242,6 @@ const FormScreen = () => {
             placeholder="Student Name"
             value={studentName}
             onChangeText={setStudentName}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="School Name"
-            value={schoolName}
-            onChangeText={setSchoolName}
             style={styles.input}
           />
           <TextInput
