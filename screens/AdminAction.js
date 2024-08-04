@@ -3,30 +3,64 @@ import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, Alert, Butt
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native'; 
 import * as ImagePicker from 'expo-image-picker';
+import { doc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL,getStorage } from 'firebase/storage';
+import { storage } from '../firebaseConfig';
 
 const AdminActionScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const user = route.params;
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(user.userData.profileImageUrl || 'https://via.placeholder.com/150');
+
+  const db = getStorage();  // Ensure this is properly initialized
+
+  const uploadImage = async (uri) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    //const storageRef = ref(storage, `profileImages/${Date.now()}_${uri.split('/').pop()}`);
+    const storageRef = ref(storage, "profileImages");
+  
+    try {
+      const snapshot = await uploadBytes(storageRef, blob);
+      const imageUrl = await getDownloadURL(snapshot.ref);
+      console.log("Uploaded Image URL:", imageUrl);
+      return imageUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return null;
+    }
+  };
+  
 
   const pickImage = async () => {
+    console.log("PickImage initiated");
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
-
+    console.log("Inside PickImage, after image picker");
+  
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      console.log("Result from picker:", result);
+      try {
+        const imageUrl = await uploadImage(result.assets[0].uri);
+        console.log("Uploaded Image URL:", imageUrl);
+        await updateUserImage(user.id, imageUrl);
+        setSelectedImage(imageUrl);
+      } catch (error) {
+        console.error("Error during image upload or updating user profile:", error);
+      }
     }
   };
 
   const takePhoto = async () => {
+    console.log("takePhoto");
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      alert('Sorry, we need camera permissions to make this work!');
+      Alert.alert('Permissions required', 'Sorry, we need camera permissions to make this work!');
       return;
     }
 
@@ -35,11 +69,28 @@ const AdminActionScreen = () => {
       aspect: [4, 3],
       quality: 1,
     });
-
+    console.log("Inside takePhoto");
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      console.log("takePhoto !result.canceled");
+      const imageUrl = await uploadImage(result.uri);
+      updateUserImage(user.id, imageUrl);
+      setSelectedImage(imageUrl);
     }
   };
+
+  const updateUserImage = async (userId, imageUrl) => {
+    const userRef = doc(db, 'users', userId);
+    try {
+      await updateDoc(userRef, {
+        profileImageUrl: imageUrl
+      });
+      Alert.alert('Success', 'Profile image updated successfully.');
+    } catch (error) {
+      console.error("Error updating document: ", error);
+      Alert.alert('Error', 'Failed to update profile image.');
+    }
+  };
+
 
   const handleUser = async () => {
     actionType = "User";
