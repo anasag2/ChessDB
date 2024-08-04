@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert,alert } from 'react-native';
 import db from '../firebaseConfig.js';
 import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 

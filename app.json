@@ -25,9 +25,10 @@
         "WRITE_EXTERNAL_STORAGE"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
+        "foregroundImage": "",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.berlin2024.LEVELUPDB"
     },
     "web": {
       "favicon": "./assets/favicon.png"

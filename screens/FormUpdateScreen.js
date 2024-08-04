@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
+  alert,
 } from 'react-native';
 import db from '../firebaseConfig.js';
 import { collection, getDocs, getDoc, doc } from 'firebase/firestore';

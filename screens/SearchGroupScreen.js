@@ -8,7 +8,8 @@ import {
   StyleSheet, 
   Modal, 
   ScrollView, 
-  Pressable 
+  Pressable ,
+  alert,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import db from '../firebaseConfig.js';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Alert,  View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal, Platform } from 'react-native';
+import {Alert,  View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal, alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import db from '../firebaseConfig.js';
 import { getDoc, writeBatch, doc, collection, getDocs, deleteDoc } from 'firebase/firestore';

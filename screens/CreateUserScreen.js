@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity,ScrollView, View, TextInput, Text, Button, StyleSheet } from 'react-native';
+import { TouchableOpacity,ScrollView, View, TextInput, Text, alert, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import db from '../firebaseConfig.js';
 import { doc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
