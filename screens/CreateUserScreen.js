@@ -75,14 +75,12 @@ const CreateUserScreen = () => {
   };
 
   const handleSave = async() => {
-    //console.log('User Data:', JSON.stringify(formData));
+  
     let not_exist = true;
     const usersRef = collection(db, "users");
     const users = await getDocs(usersRef);
     users.forEach((doc) => {
       if (formData["id"] == doc.id) {
-        console.log(doc.id);
-        console.log(formData["id"]);
         not_exist = false;
       }
     });

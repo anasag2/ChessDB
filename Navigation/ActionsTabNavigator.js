@@ -3,10 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import FormGenerator from '../screens/FormGenerator';
 import CreateUserScreen from '../screens/CreateUserScreen';
-import SettingsScreen from '../screens/SettingsScreen';
 import SearchGroupScreen from '../screens/SearchGroupScreen';
 import FormUpdateScreen from '../screens/FormUpdateScreen';
-import ReadUserScreen from '../screens/ReadUserScreen';
 import UpdateUserScreen from '../screens/UpdateUserScreen';
 import CreateGroupScreen from '../screens/CreateGroupsScreen';
 import CreateLessonsScreen from '../screens/CreateLessonsScreen';
@@ -31,8 +29,6 @@ const ActionsTabNavigator = () => {
       return <CreateLessonsScreen />;
     } else if (user.actionType === 'Schools') {
       return <CreateSchoolScreen />;
-    } else {
-      return <SettingsScreen />;
     }
   }
 
@@ -47,9 +43,7 @@ const ActionsTabNavigator = () => {
       return <UpdateLessonScreen />;
     } else if (user.actionType === 'Schools') {
       return <UpdateSchoolScreen />;
-    } else {
-      return <SettingsScreen />;
-    }
+    } 
   }
 
   return (

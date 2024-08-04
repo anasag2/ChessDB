@@ -17,8 +17,7 @@ const SchoolsScreen = () => {
     };
 
     try {
-      //const jsonValue = await AsyncStorage.getItem('schools');
-      //console.log(newSchool);
+
       const schoolsRef = collection(db, "schools");
       const schools = await getDocs(schoolsRef);
       let school = undefined;
@@ -45,7 +44,7 @@ const SchoolsScreen = () => {
       // schools.push(newSchool);
       // await AsyncStorage.setItem('schools', JSON.stringify(schools));
     } catch (e) {
-      console.error('Error saving school:', e);
+      alert('Error saving school:', e);
     }
   };
 

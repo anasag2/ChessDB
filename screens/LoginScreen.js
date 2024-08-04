@@ -10,7 +10,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
   const handlePress = (url) => {
-    Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
+    Linking.openURL(url).catch((err) => alert("Couldn't load page", err));
   };
 
   const handleLogin = async() => {

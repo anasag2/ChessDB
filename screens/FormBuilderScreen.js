@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Modal, StyleSheet, Alert, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TextInput, Button, Modal, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native'; 
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -36,9 +35,9 @@ const FormScreen = () => {
         name: doc.data().name
       }));
       setStudents(studentList);
-      //console.log(students);
+      
     } catch (error) {
-      console.error("Error loading students: ", error);
+      alert("Error loading students: ", error);
     }
   };
   const handleSelectStudent = (student) => {
@@ -47,7 +46,7 @@ const FormScreen = () => {
      
     } else {
       setSelectedStudents([...selectedStudents, student.id]);
-      console.log(selectedStudents);
+    
     }
   };
 
@@ -116,7 +115,6 @@ const FormScreen = () => {
       }
     });
   
-    console.log('User Responses:', responses);
   
     // Create a new document reference
     const newDocRef = doc(collection(db, form.formName));

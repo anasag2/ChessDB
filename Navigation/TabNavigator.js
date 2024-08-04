@@ -1,12 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
-import SettingsScreen from '../screens/SettingsScreen';
 import FormScreen from '../screens/FormScreen';
 import AdminAction from '../screens/AdminAction';
-import FormBuilderScreen from '../screens/FormBuilderScreen'
-import HomeScreen from '../screens/HomeScreen';
-import AdminHomeScreen from '../screens/AdminHomeScreen';
 import { useRoute } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();

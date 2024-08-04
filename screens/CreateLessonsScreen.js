@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import db from '../firebaseConfig.js';
 import { collection, getDocs, setDoc, doc, writeBatch, getDoc } from "firebase/firestore";
 const LessonsScreen = () => {
@@ -48,12 +48,9 @@ const LessonsScreen = () => {
           const teacherData = doc.data();
           if (teacherData.name) {
             loadedTeachers.push({ id: doc.id, name: teacherData.name });
-          } else {
-            //console.log('Teacher document missing name field:', doc.id, teacherData);
-          }
+          } 
         });
 
-        //console.log('Fetched Teachers:', loadedTeachers);
 
         const formsRef = collection(db, 'forms');
         const formsSnapshot = await getDocs(formsRef);
@@ -62,12 +59,10 @@ const LessonsScreen = () => {
           const formName = doc.id;
           if (formData.questions || formData.question) {
             loadedForms.push(formName);
-          } else {
-           // console.log('Form document missing questions field:', formName, formData);
-          }
+          } 
         });
 
-        //console.log('Fetched Forms:', loadedForms);
+   
 
         setTeachers(loadedTeachers);
         setForms(loadedForms);
@@ -75,7 +70,7 @@ const LessonsScreen = () => {
         setFilteredTeachers(loadedTeachers);
         setFilteredForms(loadedForms);
       } catch (error) {
-        console.error('Error fetching data:', error);
+       alert('Error fetching data:', error);
       }
     };
 
@@ -91,18 +86,18 @@ const LessonsScreen = () => {
       const teacherDoc = doc(teachersRef, teacherId);
       const teachersSnapshot = await getDoc(teacherDoc);
       loadedGroups=teachersSnapshot.data().groups;
-      //console.log('Fetched Groups for Teacher:', loadedGroups);
+      
       loadedGroups.forEach(async (element) => {
         const groupDoc = doc(groupsRef, element);
         const group = await getDoc(groupDoc);
         let temp = {id:element, name:group.data().groupName};
         groupinfos.push(temp);
       });
-      //console.log(groupinfos);
+     
       setGroups(groupinfos);
       setFilteredGroups(groupinfos);
     } catch (error) {
-      //console.error('Error fetching groups:', error);
+  
     }
   };
 
@@ -115,12 +110,7 @@ const LessonsScreen = () => {
     };
 
     try {
-      // const jsonValue = await AsyncStorage.getItem('lessons');
-      // const lessons = jsonValue != null ? JSON.parse(jsonValue) : [];
-      // lessons.push(newLesson);
-      // await AsyncStorage.setItem('lessons', JSON.stringify(lessons));
-      // Alert.alert('Lesson saved successfully!');
-      //console.log(newLesson);
+
       if(lessonGroup === "" || lessonName === "" || lessonTeacher === "" || lessonForm === ""){
         alert("you have an empty label");
       }
@@ -132,15 +122,15 @@ const LessonsScreen = () => {
         const usersRef = collection(db, "users");
         const userDoc = doc(usersRef, newLesson.teacher);
         let user = (await getDoc(userDoc)).data();
-        //console.log(user);
+
         const formsMap = new Map(Object.entries(user.forms_to_fill));
         formsMap.set(newLesson.group, newLesson.form);
-        //console.log(formsMap);
+
         let forms = {};
         for (const [key, value] of formsMap.entries()) {
           forms[key] = value;
         };
-        //console.log(forms);
+
         batch.update(userDoc,{"forms_to_fill": forms});
         await batch.commit();
         alert("Lesson saved successfully!");
@@ -150,7 +140,7 @@ const LessonsScreen = () => {
         setLessonName("")
       };
     } catch (e) {
-      console.error('Error saving lesson:', e);
+      alert('Error saving lesson:', e);
     }
   };
 
