@@ -27,7 +27,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.malikka2002.LEVELUPDB"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -37,7 +38,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "8d9d661b-a7d4-4da6-adb1-8592bcc81195"
+        "projectId": "5af2f38e-93c0-4ffb-8fe9-e36aa0906cc1"
       }
     }
   }

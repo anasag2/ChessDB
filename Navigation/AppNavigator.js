@@ -12,6 +12,7 @@ import FormBuilderScreen from '../screens/FormBuilderScreen';
 import CustomHeader from '../components/BurgerMenu';
 import CreateGroupScreen from '../screens/CreateGroupsScreen';
 import { LogBox } from 'react-native';
+import 'react-native-gesture-handler';
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
